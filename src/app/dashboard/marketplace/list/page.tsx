@@ -102,7 +102,7 @@ export default function ListProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 text-black pb-20 pt-28 font-sans relative overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 text-black pb-20 pt-16 font-sans relative overflow-hidden">
   <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-indigo-400/10 rounded-full blur-[150px]" />
   <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-400/10 rounded-full blur-[150px]" />
       {/* Simple Header */}
@@ -121,8 +121,8 @@ export default function ListProductPage() {
           
           {/* Listing Type Selection */}
           <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl">
-            <h2 className="text-2xl font-extrabold text-black">What are you posting?</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <h2 className="text-2xl font-extrabold text-black mb-6">What are you posting?</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-9">
               {[
                 { id: "sale", label: "For Sale" },
                 { id: "lost", label: "Lost Item" },

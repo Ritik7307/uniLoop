@@ -23,10 +23,10 @@ export default function ProfilePage() {
   }
 
   return (
-    <div className="max-w-3xl mx-auto space-y-8 animate-in fade-in slide-in-from-bottom-4 duration-500">
+    <div className="max-w-3xl mx-auto space-y-8 pt-9 animate-in fade-in slide-in-from-bottom-4 duration-500">
       <div>
-        <h1 className="text-4xl font-bold tracking-tight text-white">Student Profile</h1>
-        <p className="text-gray-400 mt-2">Manage your identity and account settings.</p>
+        <h1 className="text-4xl font-bold tracking-tight text-black">Student Profile</h1>
+        <p className="text-blue-400 mt-2">Manage your identity and account settings.</p>
       </div>
 
       <GlassCard className="flex flex-col md:flex-row items-center md:items-start gap-8 p-8" hoverEffect={false}>
@@ -51,29 +51,29 @@ export default function ProfilePage() {
             <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
               <Mail className="text-gray-400" size={18} />
               <div className="overflow-hidden">
-                <p className="text-xs text-gray-500 uppercase tracking-wider">College Email</p>
-                <p className="text-white text-sm font-medium truncate">{user.email}</p>
+                <p className="text-xs text-blue-500 uppercase tracking-wider">College Email</p>
+                <p className="text-black text-sm font-medium truncate">{user.email}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
               <Building className="text-gray-400" size={18} />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Department</p>
-                <p className="text-white text-sm font-medium">{user.department}</p>
+                <p className="text-xs text-blue-500 uppercase tracking-wider">Department</p>
+                <p className="text-black text-sm font-medium">{user.department}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
               <User className="text-gray-400" size={18} />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Year</p>
-                <p className="text-white text-sm font-medium">{user.year}</p>
+                <p className="text-xs text-blue-500 uppercase tracking-wider">Year</p>
+                <p className="text-black text-sm font-medium">{user.year}</p>
               </div>
             </div>
             <div className="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/5">
               <MapPin className="text-gray-400" size={18} />
               <div>
-                <p className="text-xs text-gray-500 uppercase tracking-wider">Hostel</p>
-                <p className="text-white text-sm font-medium">{user.hostel}</p>
+                <p className="text-xs text-blue-500 uppercase tracking-wider">Hostel</p>
+                <p className="text-black text-sm font-medium">{user.hostel}</p>
               </div>
             </div>
           </div>
