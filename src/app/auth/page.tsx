@@ -8,12 +8,14 @@ import { useRouter } from "next/navigation";
 import { auth, db } from "@/lib/firebase";
 import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
 import { doc, setDoc, getDoc } from "firebase/firestore";
+import { Eye, EyeOff } from "lucide-react";
 
 export default function AuthPage() {
   const [step, setStep] = useState<"login" | "profile" | "success">("login");
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -114,27 +116,38 @@ export default function AuthPage() {
 
               <form onSubmit={handleAuth} className="space-y-4">
                 <div className="relative">
-                  <Mail className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <input 
-                    type="email" 
-                    value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    required
-                    placeholder="student@rgipt.ac.in" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
+  <Mail className="absolute left-3 top-3 text-gray-500" size={20} />
+
+  <input
+    type="email"
+    value={email}
+    onChange={(e) => setEmail(e.target.value)}
+    required
+    placeholder="RGIPT Email"
+    className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+  />
+</div>
                 <div className="relative">
-                  <Lock className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <input 
-                    type="password"
-                    value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    required
-                    placeholder="Password" 
-                    className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-                  />
-                </div>
+                 <Lock className="absolute left-3 top-3 text-gray-500" size={20} />
+
+  <input
+    type={showPassword ? "text" : "password"}
+    value={password}
+    onChange={(e) => setPassword(e.target.value)}
+    required
+    placeholder="Password"
+    className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-12 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+  />
+
+  <button
+    type="button"
+    onClick={() => setShowPassword(!showPassword)}
+    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
+  >
+    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+  </button>
+</div>
+                
                 <button type="submit" disabled={isLoading} className="w-full py-3 mt-4 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl flex justify-center items-center gap-2 transition">
                   {isLoading ? <Loader2 className="animate-spin" size={18} /> : (isLoginMode ? "Sign In" : "Continue")}
                   {!isLoading && <ArrowRight size={18} />}
@@ -170,25 +183,30 @@ export default function AuthPage() {
               <form onSubmit={handleProfileSubmit} className="space-y-4">
                 <div className="relative">
                   <User className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Full Name" className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-white placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition" />
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Full Name" className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white" />
                 </div>
                 <div className="relative">
                   <Building className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <select required value={department} onChange={e => setDepartment(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900">
+                  <select required value={department} onChange={e => setDepartment(e.target.value)} className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white">
                     <option value="" disabled>Select Department</option>
                     <option value="Petroleum Engineering">Petroleum Engineering</option>
                     <option value="Chemical Engineering">Chemical Engineering</option>
                     <option value="Computer Science">Computer Science</option>
+                    <option value="Mathematics and Computing">Mathematics and Computing</option>
+                    <option value="Mechanical Engineering">Mechanical Engineering</option>
+                    <option value="Electrical Engineering">Electrical Engineering</option>
                     <option value="Electronics">Electronics</option>
                   </select>
                 </div>
                 <div className="relative">
                   <MapPin className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <select required value={hostel} onChange={e => setHostel(e.target.value)} className="w-full bg-white/5 border border-white/10 rounded-xl py-3 pl-10 pr-4 text-gray-300 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900">
+                  <select required value={hostel} onChange={e => setHostel(e.target.value)} className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white">
                     <option value="" disabled>Select Hostel</option>
-                    <option value="APS Hall">APS Hall</option>
-                    <option value="Rajiv Gandhi Hall">Rajiv Gandhi Hall</option>
-                    <option value="Subarna Rekha Hall">Subarna Rekha Hall</option>
+                    <option value="Block A">BLOCK A</option>
+                    <option value="Block B">BLOCK B</option>
+                    <option value="Block C">BLOCK C</option>
+                    <option value="Block D">BLOCK D</option>
+                    <option value="Block E">BLOCK E</option>
                   </select>
                 </div>
                 <button type="submit" disabled={isLoading} className="w-full py-3 mt-4 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold rounded-xl flex justify-center items-center gap-2 transition">

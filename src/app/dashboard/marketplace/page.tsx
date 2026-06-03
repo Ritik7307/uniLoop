@@ -47,20 +47,36 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div
+  className="relative min-h-screen overflow-hidden pt-32 px-6 md:px-10 space-y-10 bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100">
+    <div className="absolute inset-0 -z-10 overflow-hidden">
+  <div className="absolute top-0 left-0 w-[700px] h-[700px] bg-indigo-400/20 rounded-full blur-[140px] animate-pulse" />
+  
+  <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-400/20 rounded-full blur-[140px] animate-pulse" />
+  
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-300/10 rounded-full blur-[120px]" />
+</div> 
       {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">Campus Hub</h1>
-          <p className="text-gray-500 mt-2">Discover items, find lost goods, or hire skills.</p>
-        </div>
-        
-        <Link href="/dashboard/marketplace/list">
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 transition shadow-md">
-            <Plus size={20} /> Create Post
-          </button>
-        </Link>
-      </div>
+      <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div>
+      <h1 className="text-6xl md:text-7xl font-black tracking-tight text-gray-900">
+        Campus Hub 🚀
+      </h1>
+
+      <p className="text-xl text-gray-600 mt-4">
+        Discover items, find lost goods, and hire talented students.
+      </p>
+    </div>
+
+    <Link href="/dashboard/marketplace/list">
+      <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
+        <Plus size={22} />
+        Create Post
+      </button>
+    </Link>
+  </div>
+</div>
 
       {/* Main Tabs */}
       <div className="flex gap-4 border-b border-gray-200">
