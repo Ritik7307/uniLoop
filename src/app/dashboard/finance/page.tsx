@@ -324,7 +324,7 @@ export default function FinanceDashboard() {
                     ))}
                   </Pie>
                   <Tooltip 
-                    formatter={(value: number) => [`₹${value}`, "Spent"]}
+                    formatter={(value: any) => [`₹${value}`, "Spent"]}
                     contentStyle={{ borderRadius: "12px", border: "1px solid #e5e7eb", boxShadow: "0 10px 25px rgba(0,0,0,0.1)", fontWeight: "bold" }}
                   />
                 </PieChart>
@@ -337,7 +337,7 @@ export default function FinanceDashboard() {
           {/* Legend */}
           {spent > 0 && (
             <div className="flex flex-wrap gap-4 mt-6 justify-center">
-              {Object.entries(categoryTotals).map(([cat, amount]) => {
+              {Object.entries(categoryTotals).map(([cat, amount]: [string, any]) => {
                 const percentage = ((amount / spent) * 100).toFixed(0);
                 return (
                   <div key={cat} className="flex items-center gap-2 text-sm text-gray-900 bg-gray-50 px-4 py-2 rounded-xl border border-gray-200 shadow-sm">
