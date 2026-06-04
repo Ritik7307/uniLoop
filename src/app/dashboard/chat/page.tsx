@@ -121,7 +121,7 @@ function ChatContent() {
               <div 
                 key={chat.id} 
                 onClick={() => setActiveChat(chat)}
-                className={`p-4 border-b border-gray-100 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-indigo-50' : 'hover:bg-gray-50'}`}
+                className={`p-4 border-b border-gray-100 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
               >
                 <div className="flex justify-between items-start mb-1">
                   <h3 className="font-semibold text-gray-900 truncate">{displayName}</h3>
@@ -129,8 +129,8 @@ function ChatContent() {
                 <div className="flex justify-between items-center">
                   <p className="text-sm text-gray-500 truncate max-w-[80%]">{chat.lastMessage}</p>
                 </div>
-                <p className="text-xs text-indigo-600 mt-1 flex items-center gap-1 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-indigo-500 inline-block"/> {chat.productName}
+                <p className="text-xs text-gray-800 mt-1 flex items-center gap-1 font-medium">
+                  <span className="w-1.5 h-1.5 rounded-full bg-black inline-block"/> {chat.productName}
                 </p>
               </div>
             );
@@ -145,7 +145,7 @@ function ChatContent() {
           {/* Chat Header */}
           <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center z-10 backdrop-blur-md">
             <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-to-tr from-indigo-500 to-purple-500 flex items-center justify-center text-sm font-bold text-white">
+              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-sm font-bold text-white">
                 {(activeChat.buyerId === user.uid ? "S" : activeChat.buyerName?.charAt(0)) || "U"}
               </div>
               <div>
@@ -159,8 +159,8 @@ function ChatContent() {
             </button>
           </div>
 
-          <div className="bg-indigo-50 border-b border-indigo-100 px-4 py-2 flex items-center justify-between z-10">
-            <span className="text-xs font-semibold text-indigo-600">Negotiating: {activeChat.productName}</span>
+          <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center justify-between z-10">
+            <span className="text-xs font-semibold text-gray-700">Negotiating: {activeChat.productName}</span>
           </div>
 
           {/* Messages Thread */}
@@ -176,7 +176,7 @@ function ChatContent() {
                     layout
                     className={`flex flex-col max-w-[70%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
                   >
-                    <div className={`p-3 rounded-2xl shadow-sm ${isMe ? 'bg-indigo-600 text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'}`}>
+                    <div className={`p-3 rounded-2xl shadow-sm ${isMe ? 'bg-black text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'}`}>
                       {msg.text}
                     </div>
                   </motion.div>
@@ -196,12 +196,12 @@ function ChatContent() {
                 value={msgInput}
                 onChange={(e) => setMsgInput(e.target.value)}
                 placeholder="Type a message..." 
-                className="flex-1 bg-gray-100 border border-gray-200 rounded-full py-3 px-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
+                className="flex-1 bg-gray-100 border border-gray-200 rounded-full py-3 px-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition"
               />
               <button 
                 type="submit" 
                 disabled={!msgInput.trim()}
-                className="p-3 bg-indigo-600 hover:bg-indigo-700 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition shrink-0 shadow-sm"
+                className="p-3 bg-black hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition shrink-0 shadow-sm"
               >
                 <Send size={18} className="ml-1" />
               </button>

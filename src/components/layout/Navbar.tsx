@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useStore } from "@/store/useStore";
-import { Wallet, Bell, Menu } from "lucide-react";
+import { Wallet, Bell, Menu, Infinity } from "lucide-react";
 import { useState } from "react";
 
 export const Navbar = () => {
@@ -18,40 +18,43 @@ export const Navbar = () => {
       className="fixed top-0 left-0 w-full z-50 px-6 py-4"
     >
       <div className="max-w-7xl mx-auto flex items-center justify-between 
-rounded-3xl px-10 py-5
-bg-white/70 backdrop-blur-xl
-border border-gray-200
-shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
+rounded-full px-8 py-3
+bg-white/60 backdrop-blur-2xl
+border border-white/50
+shadow-[0_8px_32px_rgba(0,0,0,0.06)]">
 
         {/* Logo */}
         <Link
           href="/"
-          className="text-4xl font-black tracking-tight text-gray-900"
+          className="flex items-center gap-2 text-2xl md:text-3xl font-extrabold tracking-tighter text-black group"
         >
-          <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+          <div className="bg-black p-2 rounded-xl text-white group-hover:scale-105 transition-transform shadow-lg shadow-black/10">
+            <Infinity size={28} strokeWidth={3} />
+          </div>
+          <span className="text-black">
             UniLoop
           </span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-2">
+        <div className="hidden md:flex items-center gap-1 bg-gray-50/80 p-1.5 rounded-full border border-gray-100 shadow-inner">
           <Link
             href="/dashboard/marketplace"
-            className="px-6 py-3 rounded-full text-lg font-semibold"
+            className="px-5 py-2 rounded-full text-base font-bold text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all"
           >
             Marketplace
           </Link>
 
           <Link
             href="/dashboard/chat"
-            className="px-6 py-3 rounded-full text-lg font-semibold"
+            className="px-5 py-2 rounded-full text-base font-bold text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all"
           >
             Chat
           </Link>
 
           <Link
             href="/dashboard/finance"
-            className="px-6 py-3 rounded-full text-lg font-semibold"
+            className="px-5 py-2 rounded-full text-base font-bold text-gray-500 hover:text-gray-900 hover:bg-white hover:shadow-sm transition-all"
           >
             Finance
           </Link>
@@ -65,10 +68,10 @@ shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
               {/* Wallet */}
               <Link href="/dashboard/finance">
                 <div className="hidden sm:flex items-center gap-2 px-5 py-3 rounded-full
-                  bg-indigo-50 border border-indigo-100
-                  hover:bg-indigo-100 transition">
-                  <Wallet size={18} className="text-indigo-600" />
-                  <span className="text-lg font-bold text-indigo-700">
+                  bg-gray-100 border border-gray-200
+                  hover:bg-gray-200 transition">
+                  <Wallet size={18} className="text-black" />
+                  <span className="text-lg font-bold text-black">
                     ₹{walletBalance}
                   </span>
                 </div>
@@ -86,7 +89,7 @@ shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
               <Link
                 href="/dashboard/profile"
                 className="w-12 h-12 rounded-full
-                  bg-gradient-to-br from-indigo-500 to-purple-500
+                  bg-black
                   flex items-center justify-center
                   text-white text-lg font-bold
                   shadow-sm hover:scale-105 transition"
@@ -96,9 +99,9 @@ shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
             </>
           ) : (
             <Link href="/auth">
-              <button className="px-8 py-3 rounded-full text-lg font-semibold
-                bg-gray-900 text-white
-                hover:bg-gray-800 transition shadow-sm">
+              <button className="px-6 py-2.5 rounded-full text-base font-bold
+                bg-black text-white
+                hover:opacity-80 transition-all shadow-md shadow-black/10 hover:shadow-lg hover:-translate-y-0.5">
                 Join UniLoop
               </button>
             </Link>
