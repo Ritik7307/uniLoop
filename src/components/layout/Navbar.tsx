@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { motion } from "framer-motion";
 import { useStore } from "@/store/useStore";
-import { Wallet, Bell, Menu, User, Settings } from "lucide-react";
+import { Wallet, Bell, Menu } from "lucide-react";
 import { useState } from "react";
 
 export const Navbar = () => {
@@ -11,55 +11,105 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
   return (
-    <motion.nav 
+    <motion.nav
       initial={{ y: -100 }}
       animate={{ y: 0 }}
-      transition={{ duration: 0.8, ease: [0.16, 1, 0.3, 1] }}
+      transition={{ duration: 0.7, ease: [0.16, 1, 0.3, 1] }}
       className="fixed top-0 left-0 w-full z-50 px-6 py-4"
     >
-      <div className="max-w-7xl mx-auto glass-panel rounded-full px-6 py-3 flex items-center justify-between">
-        <Link href="/" className="text-xl font-bold tracking-tight text-indigo-600">
-          UniLoop.
+      <div className="max-w-7xl mx-auto flex items-center justify-between 
+rounded-3xl px-10 py-5
+bg-white/70 backdrop-blur-xl
+border border-gray-200
+shadow-[0_12px_40px_rgb(0,0,0,0.08)]">
+
+        {/* Logo */}
+        <Link
+          href="/"
+          className="text-4xl font-black tracking-tight text-gray-900"
+        >
+          <span className="bg-gradient-to-r from-indigo-600 to-purple-600 bg-clip-text text-transparent">
+            UniLoop
+          </span>
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-8 text-sm font-medium">
-          <Link href="/dashboard/marketplace" className="text-gray-600 hover:text-gray-900 transition-colors">Marketplace</Link>
-          <Link href="/dashboard/chat" className="text-gray-600 hover:text-gray-900 transition-colors">Chat</Link>
-          <Link href="/dashboard/finance" className="text-gray-600 hover:text-gray-900 transition-colors">Finance Tracker</Link>
+        <div className="hidden md:flex items-center gap-2">
+          <Link
+            href="/dashboard/marketplace"
+            className="px-6 py-3 rounded-full text-lg font-semibold"
+          >
+            Marketplace
+          </Link>
+
+          <Link
+            href="/dashboard/chat"
+            className="px-6 py-3 rounded-full text-lg font-semibold"
+          >
+            Chat
+          </Link>
+
+          <Link
+            href="/dashboard/finance"
+            className="px-6 py-3 rounded-full text-lg font-semibold"
+          >
+            Finance
+          </Link>
         </div>
 
-        {/* Right side actions */}
-        <div className="flex items-center gap-4">
+        {/* Right Side */}
+        <div className="flex items-center gap-3">
+
           {user ? (
             <>
+              {/* Wallet */}
               <Link href="/dashboard/finance">
-                <div className="hidden sm:flex items-center gap-2 bg-indigo-500/10 border border-indigo-500/20 rounded-full px-3 py-1.5 cursor-pointer hover:bg-indigo-500/20 transition">
-                  <Wallet size={16} className="text-indigo-400" />
-                  <span className="text-sm font-medium text-indigo-300">₹{walletBalance}</span>
+                <div className="hidden sm:flex items-center gap-2 px-5 py-3 rounded-full
+                  bg-indigo-50 border border-indigo-100
+                  hover:bg-indigo-100 transition">
+                  <Wallet size={18} className="text-indigo-600" />
+                  <span className="text-lg font-bold text-indigo-700">
+                    ₹{walletBalance}
+                  </span>
                 </div>
               </Link>
+
+              {/* Notifications */}
               <button className="relative p-2 rounded-full hover:bg-gray-100 transition">
-                <Bell size={20} className="text-gray-600" />
+                <Bell size={20} className="text-gray-700" />
                 {notifications.length > 0 && (
                   <span className="absolute top-1 right-1 w-2 h-2 bg-red-500 rounded-full animate-pulse" />
                 )}
               </button>
-              <Link href="/dashboard/profile" className="w-8 h-8 rounded-full bg-gradient-to-tr from-indigo-600 to-purple-600 flex items-center justify-center text-xs font-bold shadow-lg cursor-pointer text-white">
+
+              {/* Profile */}
+              <Link
+                href="/dashboard/profile"
+                className="w-12 h-12 rounded-full
+                  bg-gradient-to-br from-indigo-500 to-purple-500
+                  flex items-center justify-center
+                  text-white text-lg font-bold
+                  shadow-sm hover:scale-105 transition"
+              >
                 {user.name.charAt(0)}
               </Link>
             </>
           ) : (
             <Link href="/auth">
-              <button className="bg-indigo-600 text-white px-5 py-2 rounded-full text-sm font-semibold hover:bg-indigo-700 transition-colors">
+              <button className="px-8 py-3 rounded-full text-lg font-semibold
+                bg-gray-900 text-white
+                hover:bg-gray-800 transition shadow-sm">
                 Join UniLoop
               </button>
             </Link>
           )}
 
-          {/* Mobile toggle */}
-          <button className="md:hidden p-2 text-gray-900" onClick={() => setIsOpen(!isOpen)}>
-            <Menu size={24} />
+          {/* Mobile */}
+          <button
+            className="md:hidden p-2 rounded-full hover:bg-gray-100 transition"
+            onClick={() => setIsOpen(!isOpen)}
+          >
+            <Menu size={24} className="text-gray-800" />
           </button>
         </div>
       </div>

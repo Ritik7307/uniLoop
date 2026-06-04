@@ -102,14 +102,16 @@ export default function ListProductPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 text-gray-900 pb-20 font-sans">
+    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 text-black pb-20 pt-16 font-sans relative overflow-hidden">
+  <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-indigo-400/10 rounded-full blur-[150px]" />
+  <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-400/10 rounded-full blur-[150px]" />
       {/* Simple Header */}
-      <div className="bg-white border-b border-gray-200 sticky top-0 z-10">
-        <div className="max-w-2xl mx-auto px-4 h-14 flex items-center justify-between">
+      <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm mb-6">
+        <div className="max-w-4xl mx-auto px-6 h-10 flex items-center justify-between">
           <Link href="/dashboard/marketplace" className="text-gray-500 hover:text-gray-900 flex items-center gap-1 font-medium transition-colors">
             <ArrowLeft size={20} /> Back
           </Link>
-          <h1 className="font-bold text-lg text-gray-900">Create Listing</h1>
+          <h1 className="font-bold text-lg text-black">Create Listing</h1>
           <div className="w-16"></div> {/* Spacer for centering */}
         </div>
       </div>
@@ -118,9 +120,9 @@ export default function ListProductPage() {
         <form onSubmit={handleSubmit} className="space-y-6">
           
           {/* Listing Type Selection */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">What are you posting?</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl">
+            <h2 className="text-2xl font-extrabold text-black mb-6">What are you posting?</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-9">
               {[
                 { id: "sale", label: "For Sale" },
                 { id: "lost", label: "Lost Item" },
@@ -134,7 +136,7 @@ export default function ListProductPage() {
                   className={`py-3 px-2 rounded-xl border text-sm font-semibold transition ${
                     listingType === type.id 
                       ? 'border-indigo-600 bg-indigo-50 text-indigo-700' 
-                      : 'border-gray-200 bg-gray-50 text-gray-600 hover:bg-gray-100'
+                      : 'border-gray-200 bg-gray-50 text-black-600 hover:bg-gray-100'
                   }`}
                 >
                   {type.label}
@@ -144,8 +146,8 @@ export default function ListProductPage() {
           </div>
 
           {/* Photo Section */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm">
-            <h2 className="text-lg font-bold text-gray-900 mb-1">Photos</h2>
+          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl">
+            <h2 className="text-2xl font-extrabold text-black">Photos</h2>
             <p className="text-gray-500 text-sm mb-4">Add up to 4 photos. The first photo will be your cover.</p>
             
             <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
@@ -155,7 +157,7 @@ export default function ListProductPage() {
                   <button 
                     type="button" 
                     onClick={() => removeImage(idx)}
-                    className="absolute top-2 right-2 bg-white/90 text-gray-900 p-1.5 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition"
+                    className="absolute top-2 right-2 bg-white/90 text-black-900 p-1.5 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition"
                   >
                     <X size={16} />
                   </button>
@@ -171,7 +173,7 @@ export default function ListProductPage() {
                 <button 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-100 hover:border-gray-400 transition"
+                  className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-black-500 hover:bg-gray-100 hover:border-gray-400 transition"
                 >
                   <Camera size={28} className="mb-2 text-gray-400" />
                   <span className="text-sm font-medium">Add Photo</span>
@@ -182,8 +184,8 @@ export default function ListProductPage() {
           </div>
 
           {/* Details Section */}
-          <div className="bg-white p-5 sm:p-6 rounded-2xl border border-gray-200 shadow-sm space-y-5">
-            <h2 className="text-lg font-bold text-gray-900 mb-4">Item Details</h2>
+          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl space-y-5">
+            <h2 className="text-2xl font-extrabold text-black">Item Details</h2>
             
             <div>
               <label className="block text-sm font-semibold text-gray-700 mb-1.5">
@@ -262,8 +264,8 @@ export default function ListProductPage() {
           <button 
             type="submit" 
             disabled={isLoading}
-            className="w-full bg-indigo-600 hover:bg-indigo-700 text-white font-bold text-lg py-4 rounded-xl shadow-md hover:shadow-lg transition flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed"
-          >
+            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xl py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
+              
             {isLoading ? (
               <>
                 <Loader2 className="animate-spin" size={20} /> Publishing...

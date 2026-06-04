@@ -47,20 +47,36 @@ export default function MarketplacePage() {
   });
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div
+  className="relative min-h-screen overflow-hidden pt-9 px-6 md:px-10 space-y-10 bg-gradient-to-br from-indigo-100 via-blue-50 to-purple-100">
+    <div className="absolute inset-0 -z-10 overflow-hidden">
+  <div className="absolute top-0 left-0 w-[700px] h-[700px] bg-indigo-400/20 rounded-full blur-[140px] animate-pulse" />
+  
+  <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-400/20 rounded-full blur-[140px] animate-pulse" />
+  
+  <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[500px] h-[500px] bg-cyan-300/10 rounded-full blur-[120px]" />
+</div> 
       {/* Header & Controls */}
-      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
-        <div>
-          <h1 className="text-4xl font-bold tracking-tight text-gray-900">Campus Hub</h1>
-          <p className="text-gray-500 mt-2">Discover items, find lost goods, or hire skills.</p>
-        </div>
-        
-        <Link href="/dashboard/marketplace/list">
-          <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-6 py-3 rounded-full font-semibold flex items-center gap-2 transition shadow-md">
-            <Plus size={20} /> Create Post
-          </button>
-        </Link>
-      </div>
+      <div className="bg-white border border-gray-200 rounded-3xl p-8 shadow-lg">
+  <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-6">
+    <div>
+      <h1 className="text-6xl md:text-6xl font-black tracking-tight text-gray-900">
+        Campus Hub 
+      </h1>
+
+      <p className="text-xl text-gray-600 mt-4">
+        Discover items, find lost goods, and hire talented students.
+      </p>
+    </div>
+
+    <Link href="/dashboard/marketplace/list">
+      <button className="bg-indigo-600 hover:bg-indigo-700 text-white px-8 py-4 rounded-2xl font-bold flex items-center gap-2 shadow-lg hover:scale-105 transition-all">
+        <Plus size={22} />
+        Create Post
+      </button>
+    </Link>
+  </div>
+</div>
 
       {/* Main Tabs */}
       <div className="flex gap-4 border-b border-gray-200">
@@ -72,7 +88,7 @@ export default function MarketplacePage() {
           <button
             key={tab.id}
             onClick={() => setViewMode(tab.id)}
-            className={`py-3 px-4 text-sm font-bold border-b-2 transition ${
+            className={`py-4 px-5 text-lg font-bold border-b-2 transition ${
               viewMode === tab.id 
                 ? "border-indigo-600 text-indigo-600" 
                 : "border-transparent text-gray-500 hover:text-gray-800"
@@ -91,10 +107,10 @@ export default function MarketplacePage() {
             placeholder="Search..." 
             value={search}
             onChange={(e) => setSearch(e.target.value)}
-            className="w-full bg-white border border-gray-200 py-3 pl-12 pr-4 rounded-xl text-gray-900 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm"
+            className="w-full bg-white border border-gray-200 py-4 pl-12 pr-4 rounded-xl text-lg placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition shadow-sm"
           />
         </div>
-        <button className="bg-white border border-gray-200 px-4 py-3 rounded-xl text-gray-700 hover:bg-gray-50 transition flex items-center gap-2 shrink-0 shadow-sm">
+        <button className="bg-white border border-gray-200 px-4 py-3 rounded-xl text-lg hover:bg-gray-50 transition flex items-center gap-2 shrink-0 shadow-sm">
           <Filter size={20} /> Filters
         </button>
       </div>
@@ -105,7 +121,7 @@ export default function MarketplacePage() {
           <button
             key={cat}
             onClick={() => setActiveCategory(cat)}
-            className={`px-5 py-2 rounded-full text-sm font-medium whitespace-nowrap transition-all ${
+            className={`px-6 py-3 rounded-full text-base font-medium whitespace-nowrap transition-all ${
               activeCategory === cat 
               ? "bg-indigo-600 text-white shadow-md" 
               : "bg-white border border-gray-200 text-gray-600 hover:text-gray-900 hover:bg-gray-50"
@@ -155,13 +171,13 @@ export default function MarketplacePage() {
                       <button className="absolute top-3 right-3 p-2 rounded-full bg-white/90 backdrop-blur-md text-gray-400 hover:text-red-500 transition shadow-sm" onClick={(e) => { e.preventDefault(); /* Handle Wishlist */ }}>
                         <Heart size={18} />
                       </button>
-                      <div className="absolute bottom-3 left-3 px-3 py-1 bg-white/90 backdrop-blur-md rounded-full text-xs font-semibold text-gray-900 flex items-center gap-1 border border-gray-200 shadow-sm">
+                      <div className="absolute bottom-3 left-3 px-4 py-2 bg-white/90 backdrop-blur-md rounded-full text-sm font-semibold text-gray-900 flex items-center gap-1 border border-gray-200 shadow-sm">
                         <MapPin size={12} className="text-indigo-600" /> {product.hostel}
                       </div>
                     </div>
                     <div className="p-5 flex flex-col flex-1 justify-between gap-4">
                       <div>
-                        <h3 className="font-bold text-lg leading-tight line-clamp-2 text-gray-900 group-hover:text-indigo-600 transition-colors">{product.title}</h3>
+                        <h3 className="font-bold text-xl leading-tight line-clamp-2 text-gray-900 group-hover:text-indigo-600 transition-colors">{product.title}</h3>
                         <p className="text-sm text-gray-500 mt-1">{product.category}</p>
                       </div>
                       <div className="text-xl font-extrabold text-gray-900">

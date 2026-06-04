@@ -66,7 +66,7 @@ export default function LandingPage() {
             className="inline-flex items-center gap-2 px-4 py-2 rounded-full glass-panel mb-8 border-indigo-500/30"
           >
             <span className="w-2 h-2 rounded-full bg-indigo-500 animate-pulse" />
-            <span className="text-sm font-medium text-indigo-200">Exclusive for RGIPT Students</span>
+            <span className="text-lg font-bold text-black-200">Exclusive for RGIPT Students</span>
           </motion.div>
 
           <motion.h1 
@@ -85,7 +85,7 @@ export default function LandingPage() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             transition={{ duration: 1, delay: 0.6 }}
-            className="text-lg md:text-2xl text-gray-400 max-w-2xl mx-auto mb-10"
+            className="text-lg md:text-2xl text-grey-400 max-w-2xl mx-auto mb-10"
           >
             Campus-exclusive marketplace and student finance companion. Built for trust, speed, and beautiful experiences.
           </motion.p>
@@ -97,12 +97,12 @@ export default function LandingPage() {
             className="flex flex-col sm:flex-row items-center justify-center gap-4"
           >
             <Link href="/dashboard/marketplace">
-              <button className="px-8 py-4 rounded-full bg-white text-black font-bold text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
+              <button className="px-8 py-4 rounded-full bg-black text-white font-bold text-lg hover:scale-105 transition-transform flex items-center gap-2 shadow-[0_0_40px_rgba(255,255,255,0.3)]">
                 Explore Marketplace <ArrowRight size={20} />
               </button>
             </Link>
             <Link href="/auth">
-              <button className="px-8 py-4 rounded-full glass-panel font-bold text-lg hover:bg-white/10 transition-colors border-white/20">
+              <button className="px-8 py-4 rounded-full glass-panel font-bold text-lg hover:bg-grey/10 transition-colors border-white/20">
                 Join UniLoop
               </button>
             </Link>
@@ -114,7 +114,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="features-section relative py-32 px-6 bg-black/40 backdrop-blur-3xl">
+      <section className="features-section relative py-32 px-6 bg-blue-100 backdrop-blur-3xl">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-6xl font-bold mb-6">Everything you need. <br/><span className="text-indigo-400">In one loop.</span></h2>
@@ -122,35 +122,44 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-            <GlassCard className="feature-card flex flex-col items-start gap-4 group">
-              <div className="p-3 rounded-2xl bg-indigo-500/10 text-indigo-400 group-hover:scale-110 group-hover:bg-indigo-500 group-hover:text-white transition-all duration-300">
+            <GlassCard className="flex flex-col items-start gap-4 bg-yellow-300 border-4 border-red-500 p-10">
+              <div className="p-3 rounded-2xl bg-indigo-100 text-indigo-600
+group-hover:scale-110 transition-all duration-300">
                 <ShoppingBag size={32} />
               </div>
-              <h3 className="text-xl font-bold">Campus Marketplace</h3>
+              <h3 className="text-xl font-bold text-black">Campus Marketplace</h3>
               <p className="text-gray-400">Buy and sell items exclusively with verified RGIPT students.</p>
             </GlassCard>
 
-            <GlassCard className="feature-card flex flex-col items-start gap-4 group">
-              <div className="p-3 rounded-2xl bg-purple-500/10 text-purple-400 group-hover:scale-110 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300">
+            <GlassCard className="flex flex-col items-start gap-4 group
+  bg-white border-2 border-black
+  shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="p-3 rounded-2xl bg-indigo-100 text-indigo-600
+group-hover:scale-110 transition-all duration-300">
                 <MessageSquare size={32} />
               </div>
-              <h3 className="text-xl font-bold">Real-Time Chat</h3>
+              <h3 className="text-xl font-bold text-black">Real-Time Chat</h3>
               <p className="text-gray-400">Negotiate and finalize deals instantly with built-in secure messaging.</p>
             </GlassCard>
 
-            <GlassCard className="feature-card flex flex-col items-start gap-4 group">
-              <div className="p-3 rounded-2xl bg-green-500/10 text-green-400 group-hover:scale-110 group-hover:bg-green-500 group-hover:text-white transition-all duration-300">
+           <GlassCard className="flex flex-col items-start gap-4 group
+  bg-white border-2 border-black
+  shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="p-3 rounded-2xl bg-indigo-100 text-indigo-600
+group-hover:scale-110 transition-all duration-300">
                 <PieChart size={32} />
               </div>
-              <h3 className="text-xl font-bold">Expense Tracking</h3>
+              <h3 className="text-xl font-bold text-black">Expense Tracking</h3>
               <p className="text-gray-400">Manage your pocket money, track spending, and hit savings goals.</p>
             </GlassCard>
 
-            <GlassCard className="feature-card flex flex-col items-start gap-4 group">
-              <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300">
+           <GlassCard className="flex flex-col items-start gap-4 group
+  bg-white border-2 border-black
+  shadow-lg hover:shadow-xl transition-all duration-300">
+              <div className="p-3 rounded-2xl bg-blue-500/10 text-blue-400 group-hover:scale-110 group-hover:bg-blue-500 group-hover:text-black transition-all duration-300">
                 <ShieldCheck size={32} />
               </div>
-              <h3 className="text-xl font-bold">Verified Network</h3>
+              <h3 className="text-xl font-bold text-black">Verified Network</h3>
               <p className="text-gray-400">100% verified student profiles ensure a safe and fraud-free environment.</p>
             </GlassCard>
           </div>
@@ -173,9 +182,23 @@ export default function LandingPage() {
                 <div className="flex items-center justify-center w-10 h-10 rounded-full border-4 border-[#030303] bg-indigo-500 text-white font-bold text-sm shadow shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                   {item.step}
                 </div>
-                <div className="w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)] glass-panel p-6 rounded-2xl hover:scale-105 transition-transform duration-300 cursor-default">
-                  <h3 className="font-bold text-xl mb-1 text-white">{item.title}</h3>
-                  <p className="text-gray-400">{item.desc}</p>
+                <div
+  className="
+    w-[calc(100%-4rem)] md:w-[calc(50%-2.5rem)]
+    bg-white
+    border-2 border-gray-200
+    p-6
+    rounded-2xl
+    cursor-default
+    transition-all duration-300
+    hover:-translate-y-2
+    hover:scale-105
+    hover:shadow-2xl
+    hover:border-indigo-400
+  "
+>
+                  <h3 className="font-bold text-xl mb-1 text-blue-900">{item.title}</h3>
+                  <p className="text-black">{item.desc}</p>
                 </div>
               </div>
             ))}
@@ -185,21 +208,66 @@ export default function LandingPage() {
       </section>
 
       {/* Footer */}
-      <footer className="border-t border-white/10 bg-black/60 pt-16 pb-8 px-6 backdrop-blur-lg">
-        <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-center gap-6">
-          <div>
-            <Link href="/" className="text-2xl font-bold tracking-tight text-white">
-              UniLoop.
-            </Link>
-            <p className="text-gray-500 mt-2">Built for RGIPT Students.</p>
-          </div>
-          <div className="flex gap-6 text-sm font-medium text-gray-400">
-            <Link href="#" className="hover:text-white transition">Privacy</Link>
-            <Link href="#" className="hover:text-white transition">Terms</Link>
-            <Link href="#" className="hover:text-white transition">Contact</Link>
-          </div>
-        </div>
-      </footer>
+      <footer className="border-t border-blue-200 bg-blue-100 pt-16 pb-8 px-6">
+  <div className="max-w-7xl mx-auto flex flex-col md:flex-row justify-between items-start gap-10">
+
+    {/* Left Side */}
+    <div>
+      <Link
+        href="/"
+        className="text-5xl font-bold tracking-tight text-indigo-900"
+      >
+        UniLoop
+      </Link>
+
+      <p className="text-black mt-3 font-medium">
+        Built for RGIPT Students.
+      </p>
+    </div>
+
+    {/* Right Side */}
+    <div>
+      <h3 className="text-2xl text-black mt-3 font-semibold">
+        Quick Links
+      </h3>
+
+      <div className="flex flex-col gap-3">
+        <Link
+          href="/dashboard/marketplace"
+          className="text-xl font-medium text-black hover:text-indigo-700 transition"
+        >
+          Marketplace
+        </Link>
+
+        <Link
+          href="/dashboard/chat"
+          className="text-xl font-medium text-black hover:text-indigo-700 transition"
+        >
+          Chat
+        </Link>
+
+        <Link
+          href="/dashboard/finance"
+          className="text-xl font-medium text-black hover:text-indigo-700 transition"
+        >
+          Finance
+        </Link>
+
+        <button
+          className="mt-2 px-5 py-2 rounded-xl bg-red-500 text-white font-medium hover:bg-red-600 transition"
+        >
+          Sign Out
+        </button>
+      </div>
+    </div>
+
+  </div>
+
+  {/* Bottom Line */}
+  <div className="max-w-7xl mx-auto mt-10 pt-6 border-t border-blue-200 text-center text-gray-700 text-sm">
+    © 2026 UniLoop. All rights reserved.
+  </div>
+</footer>
     </div>
   );
 }

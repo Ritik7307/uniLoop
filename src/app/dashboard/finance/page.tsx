@@ -58,7 +58,7 @@ export default function FinanceDashboard() {
 
   let currentAngle = 0;
   const gradientStops = Object.entries(categoryTotals).map(([cat, amount]) => {
-    const percentage = (amount / spent) * 100;
+    const percentage = (amount/ spent) * 100;
     const color = categoryColors[cat] || "#6b7280";
     const stop = `${color} ${currentAngle}% ${currentAngle + percentage}%`;
     currentAngle += percentage;
@@ -133,7 +133,11 @@ export default function FinanceDashboard() {
   if (!user) return <div className="text-white p-10">Please login.</div>;
 
   return (
-    <div className="space-y-8 animate-in fade-in duration-500">
+    <div className="space-y-8 pt-9 animate-in fade-in duration-500 relative">
+  <div className="fixed inset-0 -z-10 bg-gradient-to-br from-indigo-50 via-white to-purple-50" />
+
+  <div className="fixed top-0 left-0 w-[500px] h-[500px] bg-indigo-400/10 blur-[120px] rounded-full -z-10" />
+  <div className="fixed bottom-0 right-0 w-[500px] h-[500px] bg-purple-400/10 blur-[120px] rounded-full -z-10" />
       <div>
         <h1 className="text-4xl font-bold tracking-tight text-gray-900">Pocket Finance</h1>
         <p className="text-gray-500 mt-2">Track expenses, manage budgets, and hit savings goals.</p>
@@ -141,7 +145,17 @@ export default function FinanceDashboard() {
 
       {/* Top Banner Stats */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        <GlassCard className="flex flex-col gap-4 bg-indigo-50 border-indigo-100 shadow-sm">
+        <GlassCard
+  className="
+    flex flex-col gap-4
+    bg-white/80
+    backdrop-blur-xl
+    border border-white
+    shadow-lg
+    hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all
+    duration-300">
           <div className="flex justify-between items-center text-gray-600">
             <span className="font-medium">Current Balance</span>
             <Wallet size={20} className="text-indigo-600" />
@@ -164,7 +178,19 @@ export default function FinanceDashboard() {
           )}
         </GlassCard>
 
-        <GlassCard className="flex flex-col gap-4">
+       <GlassCard
+  className="
+    flex flex-col gap-4
+    bg-white/80
+    backdrop-blur-xl
+    border border-white
+    shadow-lg
+    hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all
+    duration-300
+  "
+>
           <div className="flex justify-between items-center text-gray-600">
             <span className="font-medium">Total Spent</span>
             <Receipt size={20} className="text-red-500" />
@@ -184,7 +210,19 @@ export default function FinanceDashboard() {
           </div>
         </GlassCard>
 
-        <GlassCard className="flex flex-col gap-4 justify-between bg-purple-50 border-purple-100 shadow-sm">
+      <GlassCard
+  className="
+    flex flex-col gap-4
+    bg-white/80
+    backdrop-blur-xl
+    border border-white
+    shadow-lg
+    hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all
+    duration-300
+  "
+>
           <div>
             <div className="flex justify-between items-center text-gray-600">
               <span className="font-medium">Savings Goal</span>
@@ -200,7 +238,19 @@ export default function FinanceDashboard() {
       </div>
 
       {/* Smart Guidance Section */}
-      <GlassCard className="bg-indigo-50 border-indigo-100 shadow-sm" hoverEffect={false}>
+      <GlassCard
+  className="
+    bg-white/80
+    backdrop-blur-xl
+    border border-white
+    shadow-lg
+    hover:shadow-2xl
+    hover:-translate-y-1
+    transition-all
+    duration-300
+  "
+  hoverEffect={false}
+>
         <div className="flex flex-col sm:flex-row items-start gap-4">
           <div className="p-3 bg-indigo-100 rounded-xl text-indigo-600 shrink-0">
             <TrendingUp size={24} />
@@ -270,7 +320,20 @@ export default function FinanceDashboard() {
             {expenses.map(exp => {
               const dateStr = exp.createdAt?.toDate ? exp.createdAt.toDate().toLocaleDateString() : "Just now";
               return (
-                <div key={exp.id} className="flex items-center justify-between p-4 bg-gray-50 rounded-2xl hover:bg-gray-100 transition border border-gray-100">
+                <div key={exp.id} className="
+flex items-center justify-between
+p-4
+bg-white/80
+backdrop-blur-lg
+rounded-2xl
+border border-white
+shadow-sm
+hover:shadow-lg
+hover:-translate-y-1
+hover:border-indigo-200
+transition-all
+duration-300
+"> 
                   <div className="flex items-center gap-4">
                     <div className="w-10 h-10 rounded-full bg-white flex items-center justify-center text-gray-500 border border-gray-200 shadow-sm">
                       <ArrowDownRight size={18} className="text-red-500" />
