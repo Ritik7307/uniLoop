@@ -10,6 +10,9 @@ export interface IUser extends Document {
   walletBalance: number;
   monthlyBudget: number;
   createdAt: Date;
+  isVerified: boolean;
+  otp?: string;
+  otpExpiry?: Date;
 }
 
 const UserSchema: Schema = new Schema({
@@ -22,6 +25,9 @@ const UserSchema: Schema = new Schema({
   walletBalance: { type: Number, default: 0 },
   monthlyBudget: { type: Number, default: 5000 },
   createdAt: { type: Date, default: Date.now },
+  isVerified: { type: Boolean, default: false },
+  otp: { type: String },
+  otpExpiry: { type: Date },
 });
 
 export const User: Model<IUser> = mongoose.models.User || mongoose.model<IUser>('User', UserSchema);

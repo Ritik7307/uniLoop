@@ -9,11 +9,13 @@ import { Eye, EyeOff } from "lucide-react";
 import { useStore } from "@/store/useStore";
 
 export default function AuthPage() {
-  const [step, setStep] = useState<"login" | "profile" | "success">("login");
+  const [step, setStep] = useState<"login" | "otp" | "profile" | "success">("login");
   const [isLoginMode, setIsLoginMode] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
+  const [registeredUserId, setRegisteredUserId] = useState("");
+  const [otp, setOtp] = useState("");
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -68,11 +70,34 @@ export default function AuthPage() {
         
         if (!res.ok) throw new Error(data.error || "Registration failed");
         
-        localStorage.setItem('token', data.token);
-        setStep("profile");
+        setRegisteredUserId(data.userId);
+        setStep("otp");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Authentication failed.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleVerifyOtp = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/verify-otp', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ userId: registeredUserId, otp })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "Invalid OTP");
+      
+      localStorage.setItem('token', data.token);
+      setStep("profile");
+    } catch (err: any) {
+      setErrorMsg(err.message || "OTP verification failed");
     } finally {
       setIsLoading(false);
     }
@@ -184,6 +209,51 @@ export default function AuthPage() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center mt-6">
                 <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
                   {isLoginMode ? "Need an account? Sign Up" : "Already have an account? Sign In"}
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {step === "otp" && (
+            <motion.div
+              key="otp"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">Verify Email</h2>
+                <p className="text-slate-500 text-sm font-medium">We sent a 6-digit code to <br/><span className="font-bold text-slate-700">{email}</span></p>
+              </div>
+
+              {errorMsg && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm font-medium text-center shadow-sm">
+                  {errorMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleVerifyOtp} className="space-y-4">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
+                  <Lock className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    required
+                    placeholder="Enter 6-digit OTP"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm tracking-widest font-mono text-center text-lg"
+                  />
+                </motion.div>
+                
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} type="submit" disabled={isLoading || otp.length !== 6} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
+                  {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Verify Code"}
+                  {!isLoading && <ArrowRight size={18} />}
+                </motion.button>
+              </form>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center mt-6">
+                <button onClick={() => setStep("login")} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
+                  Cancel Registration
                 </button>
               </motion.div>
             </motion.div>
