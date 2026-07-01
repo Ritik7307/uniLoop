@@ -3,8 +3,6 @@
 import React, { useState, useEffect, useRef, use } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc } from "firebase/firestore";
 import { Camera, X, ArrowLeft, Loader2 } from "lucide-react";
 import Link from "next/link";
 import imageCompression from 'browser-image-compression';
@@ -45,21 +43,22 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
   useEffect(() => {
     const fetchProduct = async () => {
       try {
-        const docRef = doc(db, "products", productId);
-        const docSnap = await getDoc(docRef);
-        if (docSnap.exists()) {
-          const data = docSnap.data();
-          if (data.sellerId !== user?.uid) {
+        const res = await fetch(`/api/products/${productId}`);
+        const data = await res.json();
+        
+        if (res.ok) {
+          const prodData = data.product;
+          if (prodData.sellerId !== user?.uid) {
             alert("You are not authorized to edit this listing.");
             router.push("/dashboard/marketplace");
             return;
           }
-          setTitle(data.title);
-          setPrice(data.price.toString());
-          setCategory(data.category);
-          setCondition(data.condition);
-          setDescription(data.description);
-          setExistingImages(data.images || []);
+          setTitle(prodData.title);
+          setPrice(prodData.price.toString());
+          setCategory(prodData.category);
+          setCondition(prodData.condition);
+          setDescription(prodData.description);
+          setExistingImages(prodData.images || []);
         }
       } catch (error) {
         console.error("Error fetching product:", error);
@@ -121,13 +120,21 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         uploadedImageUrls.push(base64String);
       }
 
-      await updateDoc(doc(db, "products", productId), {
-        title,
-        price: Math.round(Number(price)),
-        category,
-        condition,
-        description,
-        images: uploadedImageUrls,
+      const token = localStorage.getItem('token');
+      await fetch(`/api/products/${productId}`, {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          price: Math.round(Number(price)),
+          category,
+          condition,
+          description,
+          images: uploadedImageUrls,
+        })
       });
 
       router.push(`/dashboard/marketplace/product/${productId}`);

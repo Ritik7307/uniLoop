@@ -1,11 +1,15 @@
 import type { Metadata } from "next";
+import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+
+const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
 import { Navbar } from "@/components/layout/Navbar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
+import NotificationProvider from "@/components/providers/NotificationProvider";
 
 export const metadata: Metadata = {
-  title: "UniLoop | Campus Marketplace & Finance Tracker",
-  description: "Exclusive student ecosystem for buying, selling, and managing pocket money at RGIPT.",
+  title: "UniLoop | Campus Marketplace",
+  description: "Exclusive student ecosystem for buying, selling, and connecting at RGIPT.",
 };
 
 export default function RootLayout({
@@ -15,10 +19,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className="antialiased selection:bg-indigo-500/30">
+      <body className={`${plusJakartaSans.className} antialiased selection:bg-blue-500/30 text-slate-900 bg-slate-50`}>
         <AuthProvider>
-          <Navbar />
-          {children}
+          <NotificationProvider>
+            <Navbar />
+            {children}
+          </NotificationProvider>
         </AuthProvider>
       </body>
     </html>

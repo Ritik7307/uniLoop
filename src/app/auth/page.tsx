@@ -5,10 +5,8 @@ import { motion, AnimatePresence } from "framer-motion";
 import { GlassCard } from "@/components/ui/GlassCard";
 import { ArrowRight, Mail, Lock, CheckCircle2, User, Building, MapPin, Loader2 } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { auth, db } from "@/lib/firebase";
-import { createUserWithEmailAndPassword, signInWithEmailAndPassword } from "firebase/auth";
-import { doc, setDoc, getDoc } from "firebase/firestore";
 import { Eye, EyeOff } from "lucide-react";
+import { useStore } from "@/store/useStore";
 
 export default function AuthPage() {
   const [step, setStep] = useState<"login" | "profile" | "success">("login");
@@ -27,6 +25,8 @@ export default function AuthPage() {
 
   const router = useRouter();
 
+  const { setUser, setWalletBalance, setMonthlyBudget } = useStore();
+
   const handleAuth = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMsg("");
@@ -39,17 +39,37 @@ export default function AuthPage() {
     setIsLoading(true);
     try {
       if (isLoginMode) {
-        const cred = await signInWithEmailAndPassword(auth, email, password);
-        // Check if profile exists
-        const userDoc = await getDoc(doc(db, "users", cred.user.uid));
-        if (userDoc.exists()) {
+        const res = await fetch('/api/auth/login', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ email, password })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || "Login failed");
+        
+        localStorage.setItem('token', data.token);
+        
+        if (!data.user.department) {
+          setStep("profile"); // Needs to complete profile
+        } else {
+          setUser(data.user);
+          setWalletBalance(data.user.walletBalance || 0);
+          setMonthlyBudget(data.user.monthlyBudget || 5000);
           setStep("success");
           setTimeout(() => router.push("/dashboard/marketplace"), 1000);
-        } else {
-          setStep("profile"); // Needs to complete profile
         }
       } else {
-        await createUserWithEmailAndPassword(auth, email, password);
+        const res = await fetch('/api/auth/register', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ name: email.split('@')[0], email, password })
+        });
+        const data = await res.json();
+        
+        if (!res.ok) throw new Error(data.error || "Registration failed");
+        
+        localStorage.setItem('token', data.token);
         setStep("profile");
       }
     } catch (err: any) {
@@ -63,19 +83,29 @@ export default function AuthPage() {
     e.preventDefault();
     setIsLoading(true);
     try {
-      const user = auth.currentUser;
-      if (!user) throw new Error("No user found. Please restart the process.");
+      const token = localStorage.getItem('token');
+      if (!token) throw new Error("No user found. Please restart the process.");
       
-      await setDoc(doc(db, "users", user.uid), {
-        email: user.email,
-        name: name,
-        department: department,
-        year: "1st Year", // simplified for demo
-        hostel: hostel,
-        walletBalance: 0,
-        monthlyBudget: 5000,
-        createdAt: new Date().toISOString()
+      const res = await fetch('/api/auth/me', {
+        method: 'PUT',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          name,
+          department,
+          year: "1st Year",
+          hostel,
+        })
       });
+
+      const data = await res.json();
+      if (!res.ok) throw new Error(data.error || "Failed to save profile.");
+
+      setUser(data.user);
+      setWalletBalance(data.user.walletBalance || 0);
+      setMonthlyBudget(data.user.monthlyBudget || 5000);
 
       setStep("success");
       setTimeout(() => {
@@ -89,11 +119,11 @@ export default function AuthPage() {
   };
 
   return (
-    <div className="min-h-screen flex items-center justify-center p-6 bg-black relative overflow-hidden">
-      <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-indigo-600/20 rounded-full blur-[100px] -z-10" />
-      <div className="absolute bottom-1/4 right-1/4 w-[400px] h-[400px] bg-purple-600/20 rounded-full blur-[100px] -z-10" />
+    <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
+      {/* Background grid */}
+      <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40 pointer-events-none"></div>
 
-      <GlassCard className="w-full max-w-md relative overflow-hidden" hoverEffect={false}>
+      <div className="w-full max-w-md relative z-10 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
         <AnimatePresence mode="wait">
           {step === "login" && (
             <motion.div
@@ -104,60 +134,59 @@ export default function AuthPage() {
               transition={{ duration: 0.3 }}
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-2">{isLoginMode ? "Welcome Back" : "Create Account"}</h2>
-                <p className="text-gray-400 text-sm">Use your RGIPT college email</p>
+                <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">{isLoginMode ? "Welcome Back" : "Create Account"}</h2>
+                <p className="text-slate-500 text-sm font-medium">Use your RGIPT college email</p>
               </div>
 
               {errorMsg && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm font-medium text-center shadow-sm">
                   {errorMsg}
                 </div>
               )}
 
               <form onSubmit={handleAuth} className="space-y-4">
-                <div className="relative">
-  <Mail className="absolute left-3 top-3 text-gray-500" size={20} />
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
+                  <Mail className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="RGIPT Email"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm"
+                  />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative">
+                 <Lock className="absolute left-3 top-3.5 text-slate-400" size={20} />
 
-  <input
-    type="email"
-    value={email}
-    onChange={(e) => setEmail(e.target.value)}
-    required
-    placeholder="RGIPT Email"
-    className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-  />
-</div>
-                <div className="relative">
-                 <Lock className="absolute left-3 top-3 text-gray-500" size={20} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={password}
+                    onChange={(e) => setPassword(e.target.value)}
+                    required
+                    placeholder="Password"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm"
+                  />
 
-  <input
-    type={showPassword ? "text" : "password"}
-    value={password}
-    onChange={(e) => setPassword(e.target.value)}
-    required
-    placeholder="Password"
-    className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-12 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition"
-  />
-
-  <button
-    type="button"
-    onClick={() => setShowPassword(!showPassword)}
-    className="absolute right-3 top-3 text-gray-500 hover:text-gray-700"
-  >
-    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
-  </button>
-</div>
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </motion.div>
                 
-                <button type="submit" disabled={isLoading} className="w-full py-3 mt-4 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 disabled:cursor-not-allowed text-white font-semibold rounded-xl flex justify-center items-center gap-2 transition">
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} type="submit" disabled={isLoading} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
                   {isLoading ? <Loader2 className="animate-spin" size={18} /> : (isLoginMode ? "Sign In" : "Continue")}
                   {!isLoading && <ArrowRight size={18} />}
-                </button>
+                </motion.button>
               </form>
-              <div className="text-center mt-6">
-                <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-sm text-indigo-400 hover:text-indigo-300 transition">
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center mt-6">
+                <button onClick={() => setIsLoginMode(!isLoginMode)} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
                   {isLoginMode ? "Need an account? Sign Up" : "Already have an account? Sign In"}
                 </button>
-              </div>
+              </motion.div>
             </motion.div>
           )}
 
@@ -170,48 +199,64 @@ export default function AuthPage() {
               transition={{ duration: 0.3 }}
             >
               <div className="text-center mb-8">
-                <h2 className="text-3xl font-bold mb-2">Setup Profile</h2>
-                <p className="text-gray-400 text-sm">Tell us about your campus life</p>
+                <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">Setup Profile</h2>
+                <p className="text-slate-500 text-sm font-medium">Tell us about your campus life</p>
               </div>
 
               {errorMsg && (
-                <div className="mb-4 p-3 bg-red-500/10 border border-red-500/20 rounded-xl text-red-400 text-sm text-center">
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm font-medium text-center shadow-sm">
                   {errorMsg}
                 </div>
               )}
 
               <form onSubmit={handleProfileSubmit} className="space-y-4">
-                <div className="relative">
-                  <User className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Full Name" className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white" />
-                </div>
-                <div className="relative">
-                  <Building className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <select required value={department} onChange={e => setDepartment(e.target.value)} className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
+                  <User className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input type="text" value={name} onChange={e => setName(e.target.value)} required placeholder="Full Name" className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none" />
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative">
+                  <Building className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <select required value={department} onChange={e => setDepartment(e.target.value)} className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none">
                     <option value="" disabled>Select Department</option>
-                    <option value="Petroleum Engineering">Petroleum Engineering</option>
-                    <option value="Chemical Engineering">Chemical Engineering</option>
-                    <option value="Computer Science">Computer Science</option>
-                    <option value="Mathematics and Computing">Mathematics and Computing</option>
-                    <option value="Mechanical Engineering">Mechanical Engineering</option>
-                    <option value="Electrical Engineering">Electrical Engineering</option>
-                    <option value="Electronics">Electronics</option>
+                    <optgroup label="B.Tech Branches">
+                      <option value="Computer Science and Engineering">Computer Science and Engineering</option>
+                      <option value="Computer Science and Design Engineering">Computer Science and Design Engineering</option>
+                      <option value="Information Technology">Information Technology</option>
+                      <option value="Mathematics and Computing">Mathematics and Computing</option>
+                      <option value="Electronics Engineering">Electronics Engineering</option>
+                      <option value="Electrical Engineering">Electrical Engineering</option>
+                      <option value="Mechanical Engineering">Mechanical Engineering</option>
+                      <option value="Chemical Engineering">Chemical Engineering</option>
+                      <option value="Petroleum Engineering">Petroleum Engineering</option>
+                      <option value="AI-Enabled Energy Engineering">AI-Enabled Energy Engineering</option>
+                    </optgroup>
+                    <optgroup label="Masters & Ph.D. Departments">
+                      <option value="MBA / Management Studies">MBA / Management Studies</option>
+                      <option value="PhD - Basic Sciences">Basic Sciences & Humanities</option>
+                      <option value="PhD - Mathematical Sciences">Mathematical Sciences</option>
+                      <option value="PhD - Chemical & Biochemical">Chemical & Biochemical Engineering</option>
+                      <option value="PhD - Petroleum & Geoengineering">Petroleum Engineering & Geoengineering</option>
+                      <option value="PhD - Computer Science">Computer Science and Engineering</option>
+                      <option value="PhD - Management">Management Studies</option>
+                    </optgroup>
                   </select>
-                </div>
-                <div className="relative">
-                  <MapPin className="absolute left-3 top-3 text-gray-500" size={20} />
-                  <select required value={hostel} onChange={e => setHostel(e.target.value)} className="w-full bg-white text-black border border-gray-300 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-indigo-500 transition appearance-none [&>option]:bg-gray-900 [&>option]:text-white">
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="relative">
+                  <MapPin className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <select required value={hostel} onChange={e => setHostel(e.target.value)} className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none">
                     <option value="" disabled>Select Hostel</option>
-                    <option value="Block A">BLOCK A</option>
-                    <option value="Block B">BLOCK B</option>
-                    <option value="Block C">BLOCK C</option>
-                    <option value="Block D">BLOCK D</option>
-                    <option value="Block E">BLOCK E</option>
+                    <option value="C V Raman Hostel">C V Raman Hostel</option>
+                    <option value="Ramanujan Hostel">Ramanujan Hostel</option>
+                    <option value="Aryabhatta Hostel">Aryabhatta Hostel</option>
+                    <option value="Vidyasagar Hostel">Vidyasagar Hostel</option>
+                    <option value="Homi Bhabha Hostel">Homi Bhabha Hostel</option>
+                    <option value="Girls Hostel">Girls Hostel</option>
+                    <option value="Day Scholar">Day Scholar / Off-Campus</option>
                   </select>
-                </div>
-                <button type="submit" disabled={isLoading} className="w-full py-3 mt-4 bg-indigo-500 hover:bg-indigo-600 disabled:opacity-50 text-white font-semibold rounded-xl flex justify-center items-center gap-2 transition">
+                </motion.div>
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.4 }} type="submit" disabled={isLoading} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
                    {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Complete Profile"}
-                </button>
+                </motion.button>
               </form>
             </motion.div>
           )}
@@ -227,16 +272,16 @@ export default function AuthPage() {
                 initial={{ scale: 0 }}
                 animate={{ scale: 1 }}
                 transition={{ type: "spring", delay: 0.2 }}
-                className="w-20 h-20 bg-green-500/20 text-green-400 rounded-full flex items-center justify-center mx-auto mb-6"
+                className="w-24 h-24 bg-green-50 text-green-500 rounded-full flex items-center justify-center mx-auto mb-6 shadow-inner border border-green-100"
               >
-                <CheckCircle2 size={40} />
+                <CheckCircle2 size={48} strokeWidth={2.5} />
               </motion.div>
-              <h2 className="text-3xl font-bold mb-2">Verified!</h2>
-              <p className="text-gray-400 text-sm">Redirecting to dashboard...</p>
+              <h2 className="text-3xl font-extrabold mb-2 text-slate-900 tracking-tight">Verified!</h2>
+              <p className="text-slate-500 font-medium">Redirecting to dashboard...</p>
             </motion.div>
           )}
         </AnimatePresence>
-      </GlassCard>
+      </div>
     </div>
   );
 }

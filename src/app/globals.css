@@ -1,19 +1,17 @@
 @import "tailwindcss";
 
 @theme {
-  --color-brand: #6366f1;
-  --color-brand-light: #818cf8;
-  --color-brand-dark: #4f46e5;
-  --color-glass-bg: rgba(25, 25, 25, 0.6);
-  --color-glass-border: rgba(255, 255, 255, 0.1);
+  --color-brand: #2563eb;
+  --color-brand-light: #60a5fa;
+  --color-brand-dark: #1d4ed8;
+  --color-brand-accent: #3b82f6;
   
-  --font-sans: "Inter", var(--font-geist-sans), ui-sans-serif, system-ui;
-  --font-mono: var(--font-geist-mono), ui-monospace, monospace;
+  --font-sans: "Plus Jakarta Sans", var(--font-geist-sans), ui-sans-serif, system-ui;
 }
 
 :root {
-  --background: #f9fafb;
-  --foreground: #111827;
+  --background: #f8fafc; /* slate-50 */
+  --foreground: #0f172a; /* slate-900 */
 }
 
 @layer base {
@@ -21,21 +19,29 @@
     background: var(--background);
     color: var(--foreground);
     font-family: var(--font-sans);
-    /* smooth scrolling for GSAP later */
     scroll-behavior: smooth;
   }
 }
 
 @layer utilities {
   .glass-panel {
-    background: #ffffff;
-    border: 1px solid #e5e7eb;
-    box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+    background: rgba(255, 255, 255, 0.6);
+    backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
+    border: 1px solid rgba(255, 255, 255, 0.4);
+    box-shadow: 0 4px 30px rgba(0, 0, 0, 0.03);
   }
   
   .glass-panel-hover:hover {
-    background: #fcfcfc;
-    border: 1px solid #d1d5db;
-    box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+    background: rgba(255, 255, 255, 0.85);
+    border: 1px solid rgba(255, 255, 255, 0.7);
+    box-shadow: 0 10px 40px rgba(0, 0, 0, 0.05);
+  }
+
+  .text-gradient {
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-image: linear-gradient(to right, var(--color-brand-dark), var(--color-brand-light));
   }
 }

@@ -3,13 +3,10 @@
 import React, { useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import { useStore } from "@/store/useStore";
-import { db } from "@/lib/firebase";
-import { collection, addDoc, serverTimestamp } from "firebase/firestore";
-import { Camera, X, ArrowLeft, Loader2 } from "lucide-react";
+import { Camera, X, ArrowLeft, Loader2, AlertCircle } from "lucide-react";
 import Link from "next/link";
 import imageCompression from 'browser-image-compression';
 
-// Base64 helper to bypass Firebase Storage
 const blobToBase64 = (blob: Blob): Promise<string> => {
   return new Promise((resolve, reject) => {
     const reader = new FileReader();
@@ -23,10 +20,10 @@ export default function ListProductPage() {
   const router = useRouter();
   const { user } = useStore();
   const [isLoading, setIsLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
   const fileInputRef = useRef<HTMLInputElement>(null);
 
-  // Form State
-  const [listingType, setListingType] = useState("sale"); // sale, lost, found, service
+  const [listingType, setListingType] = useState("sale");
   const [title, setTitle] = useState("");
   const [price, setPrice] = useState("");
   const [category, setCategory] = useState("Electronics");
@@ -51,8 +48,16 @@ export default function ListProductPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (!user) return alert("You must be logged in.");
-    if (images.length === 0) return alert("Please add at least one photo.");
+    setErrorMsg("");
+    
+    if (!user) {
+      setErrorMsg("You must be logged in to post a listing.");
+      return;
+    }
+    if (images.length === 0) {
+      setErrorMsg("Please add at least one photo.");
+      return;
+    }
 
     setIsLoading(true);
     try {
@@ -77,52 +82,67 @@ export default function ListProductPage() {
         uploadedImageUrls.push(base64String);
       }
 
-      await addDoc(collection(db, "products"), {
-        title,
-        price: listingType === 'sale' ? Math.round(Number(price)) : 0,
-        listingType,
-        category,
-        condition,
-        description,
-        images: uploadedImageUrls,
-        sellerId: user.uid,
-        sellerName: user.name,
-        hostel: user.hostel,
-        status: "available",
-        createdAt: serverTimestamp()
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/products', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({
+          title,
+          price: listingType === 'sale' ? Math.round(Number(price)) : 0,
+          listingType,
+          category,
+          condition,
+          description,
+          images: uploadedImageUrls,
+          sellerName: user.name,
+          hostel: user.hostel,
+          status: "available",
+        })
       });
+
+      if (!res.ok) {
+        throw new Error("Failed to create listing");
+      }
 
       router.push("/dashboard/marketplace");
     } catch (error) {
       console.error(error);
-      alert("Something went wrong saving the post.");
+      setErrorMsg("Something went wrong saving the post. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-indigo-50 via-blue-50 to-purple-50 text-black pb-20 pt-16 font-sans relative overflow-hidden">
-  <div className="absolute top-0 left-0 w-[600px] h-[600px] bg-indigo-400/10 rounded-full blur-[150px]" />
-  <div className="absolute bottom-0 right-0 w-[600px] h-[600px] bg-purple-400/10 rounded-full blur-[150px]" />
-      {/* Simple Header */}
-      <div className="bg-white/90 backdrop-blur-md border border-gray-200 rounded-2xl shadow-sm mb-6">
-        <div className="max-w-4xl mx-auto px-6 h-10 flex items-center justify-between">
-          <Link href="/dashboard/marketplace" className="text-gray-500 hover:text-gray-900 flex items-center gap-1 font-medium transition-colors">
-            <ArrowLeft size={20} /> Back
+    <div className="min-h-screen bg-gray-50 pb-20">
+      {/* Header */}
+      <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+        <div className="max-w-3xl mx-auto px-4 h-16 flex items-center justify-between">
+          <Link href="/dashboard/marketplace" className="text-gray-500 hover:text-gray-900 flex items-center gap-2 font-medium transition-colors">
+            <ArrowLeft size={18} /> Cancel
           </Link>
-          <h1 className="font-bold text-lg text-black">Create Listing</h1>
-          <div className="w-16"></div> {/* Spacer for centering */}
+          <h1 className="font-bold text-lg text-gray-900">Create Listing</h1>
+          <div className="w-20"></div> {/* Spacer */}
         </div>
-      </div>
+      </header>
 
-      <div className="max-w-2xl mx-auto px-4 mt-6">
-        <form onSubmit={handleSubmit} className="space-y-6">
+      <div className="max-w-3xl mx-auto px-4 mt-8">
+        {errorMsg && (
+          <div className="mb-6 bg-red-50 border border-red-200 text-red-700 px-4 py-3 rounded-lg flex items-start gap-3">
+            <AlertCircle size={20} className="shrink-0 mt-0.5" />
+            <p className="text-sm font-medium">{errorMsg}</p>
+          </div>
+        )}
+
+        <form onSubmit={handleSubmit} className="space-y-8">
           
-          {/* Listing Type Selection */}
-          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl">
-            <h2 className="text-2xl font-extrabold text-black mb-6">What are you posting?</h2>
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-9">
+          {/* Section 1: Type */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-4">Listing Type</h2>
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {[
                 { id: "sale", label: "For Sale" },
                 { id: "lost", label: "Lost Item" },
@@ -133,10 +153,10 @@ export default function ListProductPage() {
                   key={type.id}
                   type="button"
                   onClick={() => setListingType(type.id)}
-                  className={`py-3 px-2 rounded-xl border text-sm font-semibold transition ${
+                  className={`py-3 px-2 rounded-lg border text-sm font-semibold transition-colors ${
                     listingType === type.id 
-                      ? 'border-indigo-600 bg-indigo-50 text-indigo-700' 
-                      : 'border-gray-200 bg-gray-50 text-black-600 hover:bg-gray-100'
+                      ? 'border-blue-600 bg-blue-50 text-blue-700' 
+                      : 'border-gray-200 bg-white text-gray-600 hover:bg-gray-50 hover:border-gray-300'
                   }`}
                 >
                   {type.label}
@@ -145,24 +165,24 @@ export default function ListProductPage() {
             </div>
           </div>
 
-          {/* Photo Section */}
-          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl">
-            <h2 className="text-2xl font-extrabold text-black">Photos</h2>
+          {/* Section 2: Photos */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm">
+            <h2 className="text-lg font-bold text-gray-900 mb-1">Photos</h2>
             <p className="text-gray-500 text-sm mb-4">Add up to 4 photos. The first photo will be your cover.</p>
             
-            <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+            <div className="grid grid-cols-2 sm:grid-cols-4 gap-4">
               {previewUrls.map((url, idx) => (
-                <div key={idx} className="aspect-square rounded-xl overflow-hidden relative group bg-gray-100 border border-gray-200">
+                <div key={idx} className="aspect-square rounded-lg overflow-hidden relative group border border-gray-200">
                   <img src={url} alt={`Preview ${idx}`} className="w-full h-full object-cover" />
                   <button 
                     type="button" 
                     onClick={() => removeImage(idx)}
-                    className="absolute top-2 right-2 bg-white/90 text-black-900 p-1.5 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition"
+                    className="absolute top-2 right-2 bg-white text-gray-700 p-1.5 rounded-full shadow-sm hover:bg-red-50 hover:text-red-600 transition-colors"
                   >
-                    <X size={16} />
+                    <X size={14} />
                   </button>
                   {idx === 0 && (
-                    <div className="absolute bottom-0 inset-x-0 bg-black/60 text-white text-[10px] font-bold text-center py-1">
+                    <div className="absolute bottom-0 inset-x-0 bg-gray-900/80 text-white text-[10px] font-bold text-center py-1">
                       COVER
                     </div>
                   )}
@@ -173,55 +193,60 @@ export default function ListProductPage() {
                 <button 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
-                  className="aspect-square rounded-xl border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-black-500 hover:bg-gray-100 hover:border-gray-400 transition"
+                  className="aspect-square rounded-lg border-2 border-dashed border-gray-300 bg-gray-50 flex flex-col items-center justify-center text-gray-500 hover:bg-gray-100 hover:border-gray-400 transition-colors"
                 >
-                  <Camera size={28} className="mb-2 text-gray-400" />
-                  <span className="text-sm font-medium">Add Photo</span>
+                  <Camera size={24} className="mb-2 text-gray-400" />
+                  <span className="text-xs font-medium">Add Photo</span>
                 </button>
               )}
             </div>
             <input ref={fileInputRef} type="file" multiple accept="image/*" onChange={handleImageChange} className="hidden" />
           </div>
 
-          {/* Details Section */}
-          <div className="bg-white/90 backdrop-blur-xl p-6 sm:p-8 rounded-3xl border border-white shadow-xl space-y-5">
-            <h2 className="text-2xl font-extrabold text-black">Item Details</h2>
+          {/* Section 3: Details */}
+          <div className="bg-white p-6 rounded-xl border border-gray-200 shadow-sm space-y-6">
+            <h2 className="text-lg font-bold text-gray-900">Item Details</h2>
             
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">
-                {listingType === 'sale' ? 'What are you selling?' : listingType === 'service' ? 'What service are you offering?' : 'What item?'}
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">
+                {listingType === 'sale' ? 'Title' : listingType === 'service' ? 'Service Title' : 'Item Name'}
               </label>
               <input 
                 type="text" 
                 required 
                 value={title} 
                 onChange={e => setTitle(e.target.value)} 
-                placeholder={listingType === 'sale' ? "e.g., Engineering Drafter" : "e.g., Blue Water Bottle"} 
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-gray-900 placeholder:text-gray-400"
+                placeholder={listingType === 'sale' ? "e.g., Engineering Graphics Drafter" : "e.g., Blue Water Bottle"} 
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm"
               />
             </div>
 
             {listingType === 'sale' && (
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Price (₹)</label>
-                <input 
-                  type="number" 
-                  required 
-                  value={price} 
-                  onChange={e => setPrice(e.target.value)} 
-                  placeholder="0" 
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-lg font-medium text-gray-900 placeholder:text-gray-400"
-                />
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Price (₹)</label>
+                <div className="relative">
+                  <div className="absolute inset-y-0 left-0 pl-4 flex items-center pointer-events-none">
+                    <span className="text-gray-500 sm:text-sm">₹</span>
+                  </div>
+                  <input 
+                    type="number" 
+                    required 
+                    value={price} 
+                    onChange={e => setPrice(e.target.value)} 
+                    placeholder="0" 
+                    className="w-full pl-8 pr-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm"
+                  />
+                </div>
               </div>
             )}
 
-            <div className="grid grid-cols-2 gap-4">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
               <div>
-                <label className="block text-sm font-semibold text-gray-700 mb-1.5">Category</label>
+                <label className="block text-sm font-medium text-gray-700 mb-1.5">Category</label>
                 <select 
                   value={category} 
                   onChange={e => setCategory(e.target.value)}
-                  className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-gray-900 cursor-pointer"
+                  className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm cursor-pointer"
                 >
                   <option>Electronics</option>
                   <option>Books</option>
@@ -233,11 +258,11 @@ export default function ListProductPage() {
               </div>
               {listingType === 'sale' && (
                 <div>
-                  <label className="block text-sm font-semibold text-gray-700 mb-1.5">Condition</label>
+                  <label className="block text-sm font-medium text-gray-700 mb-1.5">Condition</label>
                   <select 
                     value={condition} 
                     onChange={e => setCondition(e.target.value)}
-                    className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition text-gray-900 cursor-pointer"
+                    className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm cursor-pointer"
                   >
                     <option>Like New</option>
                     <option>Good</option>
@@ -249,31 +274,33 @@ export default function ListProductPage() {
             </div>
 
             <div>
-              <label className="block text-sm font-semibold text-gray-700 mb-1.5">Description / Location</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1.5">Description</label>
               <textarea 
                 required 
                 value={description} 
                 onChange={e => setDescription(e.target.value)} 
-                placeholder="Add more details (flaws, exact location where lost/found)..." 
-                rows={4}
-                className="w-full px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl focus:bg-white focus:ring-2 focus:ring-indigo-500 focus:border-indigo-500 outline-none transition resize-none text-gray-900 placeholder:text-gray-400"
+                placeholder="Add details such as brand, flaws, or pickup location..." 
+                rows={5}
+                className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm resize-y"
               />
             </div>
           </div>
 
-          <button 
-            type="submit" 
-            disabled={isLoading}
-            className="w-full bg-gradient-to-r from-indigo-600 to-purple-600 hover:from-indigo-700 hover:to-purple-700 text-white font-bold text-xl py-5 rounded-2xl shadow-xl hover:shadow-2xl transition-all duration-300 flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed">
-              
-            {isLoading ? (
-              <>
-                <Loader2 className="animate-spin" size={20} /> Publishing...
-              </>
-            ) : (
-              "Post Listing"
-            )}
-          </button>
+          <div className="pt-4 flex justify-end">
+            <button 
+              type="submit" 
+              disabled={isLoading}
+              className="bg-blue-600 hover:bg-blue-700 text-white font-medium text-sm px-8 py-3 rounded-lg shadow-sm transition-colors flex items-center justify-center gap-2 disabled:opacity-70 disabled:cursor-not-allowed w-full sm:w-auto"
+            >
+              {isLoading ? (
+                <>
+                  <Loader2 className="animate-spin" size={16} /> Publishing...
+                </>
+              ) : (
+                "Publish Listing"
+              )}
+            </button>
+          </div>
         </form>
       </div>
     </div>

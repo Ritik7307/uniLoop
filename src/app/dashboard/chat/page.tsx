@@ -1,13 +1,19 @@
 "use client";
 
-import { useState, useEffect, Suspense } from "react";
-import { GlassCard } from "@/components/ui/GlassCard";
-import { Send, Image as ImageIcon, CheckCircle2, ShieldAlert } from "lucide-react";
-import { motion, AnimatePresence } from "framer-motion";
+import React, { useState, useEffect, Suspense, useRef } from "react";
+import { Send, Image as ImageIcon, CheckCircle2, ShieldAlert, ArrowLeft, Loader2, X, MessageCircle } from "lucide-react";
 import { useStore } from "@/store/useStore";
-import { db } from "@/lib/firebase";
-import { collection, query, where, onSnapshot, addDoc, serverTimestamp, orderBy, getDocs, doc, setDoc } from "firebase/firestore";
 import { useSearchParams, useRouter } from "next/navigation";
+import imageCompression from 'browser-image-compression';
+
+const blobToBase64 = (blob: Blob): Promise<string> => {
+  return new Promise((resolve, reject) => {
+    const reader = new FileReader();
+    reader.onloadend = () => resolve(reader.result as string);
+    reader.onerror = reject;
+    reader.readAsDataURL(blob);
+  });
+};
 
 function ChatContent() {
   const { user } = useStore();
@@ -17,210 +23,249 @@ function ChatContent() {
   const initSellerId = searchParams.get("seller");
 
   const [chats, setChats] = useState<any[]>([]);
+  
   const [activeChat, setActiveChat] = useState<any>(null);
   const [messages, setMessages] = useState<any[]>([]);
   const [msgInput, setMsgInput] = useState("");
+  const [isUploading, setIsUploading] = useState(false);
+  const [isMobileListVisible, setIsMobileListVisible] = useState(true);
 
-  // Load Chats
+  const messagesEndRef = useRef<HTMLDivElement>(null);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
+  // Auto-scroll function
+  const scrollToBottom = () => {
+    messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
+  };
+
   useEffect(() => {
-    if (!user) return;
-    
-    // In a real app we query where buyerId == uid OR sellerId == uid
-    // Firestore OR queries are complex, for simplicity we listen to all where user is involved
-    const q1 = query(collection(db, "chats"), where("buyerId", "==", user.uid));
-    const q2 = query(collection(db, "chats"), where("sellerId", "==", user.uid));
-    
-    const unsubs: any[] = [];
-    const chatMap = new Map();
-
-    const handleSnap = (snapshot: any) => {
-      snapshot.docs.forEach((doc: any) => {
-        chatMap.set(doc.id, { id: doc.id, ...doc.data() });
-      });
-      setChats(Array.from(chatMap.values()).sort((a,b) => b.lastMessageTime?.toMillis() - a.lastMessageTime?.toMillis()));
-    };
-
-    unsubs.push(onSnapshot(q1, handleSnap));
-    unsubs.push(onSnapshot(q2, handleSnap));
-
-    return () => unsubs.forEach(u => u());
-  }, [user]);
-
-  // Handle Initial Routing (Chat to Buy)
-  useEffect(() => {
-    if (initProductId && initSellerId && user && chats.length > 0) {
-      // Check if chat exists
-      const existing = chats.find(c => c.productId === initProductId && (c.buyerId === user.uid || c.sellerId === user.uid));
-      if (existing) {
-        setActiveChat(existing);
-      } else {
-        // Create new chat
-        const createChat = async () => {
-           const newChatId = `${initProductId}_${user.uid}`;
-           await setDoc(doc(db, "chats", newChatId), {
-             productId: initProductId,
-             buyerId: user.uid,
-             sellerId: initSellerId,
-             buyerName: user.name,
-             productName: "Item via Marketplace",
-             lastMessage: "Interested!",
-             lastMessageTime: serverTimestamp()
-           });
-        };
-        createChat();
-      }
-    }
-  }, [initProductId, initSellerId, user, chats]);
+    scrollToBottom();
+  }, [messages]);
 
   // Load Messages for Active Chat
   useEffect(() => {
     if (!activeChat) return;
-    const q = query(collection(db, "chats", activeChat.id, "messages"), orderBy("timestamp", "asc"));
-    const unsub = onSnapshot(q, (snapshot) => {
-      const msgs = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-      setMessages(msgs);
-    });
-    return () => unsub();
+    // Will fetch messages from database here
+    setMessages([]);
   }, [activeChat]);
 
-  const handleSend = async (e: React.FormEvent) => {
+  const handleSendText = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!msgInput.trim() || !activeChat || !user) return;
-    
-    const text = msgInput;
+
+    const text = msgInput.trim();
     setMsgInput("");
 
-    await addDoc(collection(db, "chats", activeChat.id, "messages"), {
+    const newMsg = {
+      id: Date.now().toString(),
       text,
+      type: "text",
       senderId: user.uid,
-      timestamp: serverTimestamp()
-    });
+      timestamp: new Date()
+    };
+    
+    setMessages(prev => [...prev, newMsg]);
 
-    // Update last message
-    await setDoc(doc(db, "chats", activeChat.id), {
-      lastMessage: text,
-      lastMessageTime: serverTimestamp()
-    }, { merge: true });
+    setChats(prev => prev.map(c => 
+      c.id === activeChat.id ? { ...c, lastMessage: text, lastMessageTime: new Date() } : c
+    ));
   };
 
-  if (!user) return <div className="p-10 text-white">Please login to access chats.</div>;
+  const handleSendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    if (!e.target.files || !e.target.files[0] || !activeChat || !user) return;
+
+    setIsUploading(true);
+    const file = e.target.files[0];
+
+    try {
+      const options = { maxSizeMB: 0.2, maxWidthOrHeight: 800, useWebWorker: true };
+      const compressedFile = await imageCompression(file, options);
+      const base64String = await blobToBase64(compressedFile);
+
+      const newMsg = {
+        id: Date.now().toString(),
+        imageUrl: base64String,
+        type: "image",
+        senderId: user.uid,
+        timestamp: new Date()
+      };
+      
+      setMessages(prev => [...prev, newMsg]);
+
+      setChats(prev => prev.map(c => 
+        c.id === activeChat.id ? { ...c, lastMessage: "Sent an image", lastMessageTime: new Date() } : c
+      ));
+    } catch (error) {
+      console.error("Error sending image:", error);
+      alert("Failed to send image.");
+    } finally {
+      setIsUploading(false);
+      if (fileInputRef.current) fileInputRef.current.value = '';
+    }
+  };
+
+  const selectChat = (chat: any) => {
+    setActiveChat(chat);
+    setIsMobileListVisible(false);
+  };
+
+  if (!user) return <div className="p-10 text-slate-700 bg-slate-50 min-h-screen text-center font-bold">Please login to access chats.</div>;
 
   return (
-    <div className="h-[calc(100vh-140px)] flex gap-6">
-      {/* Left: Chat List */}
-      <GlassCard className="w-full md:w-1/3 h-full flex flex-col p-0 overflow-hidden" hoverEffect={false}>
-        <div className="p-4 border-b border-gray-200 bg-gray-50">
-          <h2 className="text-xl font-bold text-gray-900">Messages</h2>
-        </div>
-        <div className="flex-1 overflow-y-auto">
-          {chats.map(chat => {
-            const isMeBuyer = chat.buyerId === user.uid;
-            const displayName = isMeBuyer ? "Seller" : chat.buyerName;
-            
-            return (
-              <div 
-                key={chat.id} 
-                onClick={() => setActiveChat(chat)}
-                className={`p-4 border-b border-gray-100 cursor-pointer transition-colors ${activeChat?.id === chat.id ? 'bg-gray-100' : 'hover:bg-gray-50'}`}
-              >
-                <div className="flex justify-between items-start mb-1">
-                  <h3 className="font-semibold text-gray-900 truncate">{displayName}</h3>
-                </div>
-                <div className="flex justify-between items-center">
-                  <p className="text-sm text-gray-500 truncate max-w-[80%]">{chat.lastMessage}</p>
-                </div>
-                <p className="text-xs text-gray-800 mt-1 flex items-center gap-1 font-medium">
-                  <span className="w-1.5 h-1.5 rounded-full bg-black inline-block"/> {chat.productName}
-                </p>
-              </div>
-            );
-          })}
-          {chats.length === 0 && <div className="p-6 text-gray-500 text-center">No active chats.</div>}
-        </div>
-      </GlassCard>
+    <div className="h-[calc(100vh-64px)] max-h-screen pt-4 pb-8 px-4 sm:px-6 lg:px-8 bg-slate-50">
+      <div className="max-w-6xl mx-auto h-full flex bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
 
-      {/* Right: Active Chat Thread */}
-      {activeChat ? (
-        <GlassCard className="hidden md:flex w-2/3 h-full flex-col p-0 overflow-hidden relative" hoverEffect={false}>
-          {/* Chat Header */}
-          <div className="p-4 border-b border-gray-200 bg-white flex justify-between items-center z-10 backdrop-blur-md">
-            <div className="flex items-center gap-3">
-              <div className="w-10 h-10 rounded-full bg-black flex items-center justify-center text-sm font-bold text-white">
-                {(activeChat.buyerId === user.uid ? "S" : activeChat.buyerName?.charAt(0)) || "U"}
-              </div>
-              <div>
-                <h2 className="font-bold text-gray-900 flex items-center gap-1">
-                  {activeChat.buyerId === user.uid ? "Seller" : activeChat.buyerName} <CheckCircle2 size={14} className="text-green-500"/>
-                </h2>
-              </div>
-            </div>
-            <button className="text-gray-400 hover:text-red-500 transition" title="Report/Block User">
-              <ShieldAlert size={20} />
-            </button>
+        {/* Left: Chat List */}
+        <div className={`w-full md:w-1/3 flex-col border-r border-slate-200 ${isMobileListVisible ? 'flex' : 'hidden md:flex'}`}>
+          <div className="p-5 border-b border-slate-100 bg-white/80 backdrop-blur-md">
+            <h2 className="text-2xl font-extrabold text-slate-900 tracking-tight">Messages</h2>
           </div>
+          <div className="flex-1 overflow-y-auto bg-white scrollbar-hide">
+            {chats.map(chat => {
+              const isMeBuyer = chat.buyerId === user.uid;
+              const displayName = isMeBuyer ? "Seller" : chat.buyerName;
+              const isActive = activeChat?.id === chat.id;
 
-          <div className="bg-gray-100 border-b border-gray-200 px-4 py-2 flex items-center justify-between z-10">
-            <span className="text-xs font-semibold text-gray-700">Negotiating: {activeChat.productName}</span>
+              const date = chat.lastMessageTime?.toDate ? chat.lastMessageTime.toDate() : null;
+              const timeString = date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+              return (
+                <div
+                  key={chat.id}
+                  onClick={() => selectChat(chat)}
+                  className={`p-5 border-b border-slate-50 cursor-pointer transition-all ${isActive ? 'bg-brand/5 border-l-4 border-l-brand' : 'hover:bg-slate-50 bg-white border-l-4 border-l-transparent'}`}
+                >
+                  <div className="flex justify-between items-start mb-1 gap-2">
+                    <h3 className={`font-bold truncate ${isActive ? 'text-brand' : 'text-slate-900'}`}>{displayName}</h3>
+                    {timeString && <span className="text-[10px] font-bold text-slate-400 shrink-0 uppercase">{timeString}</span>}
+                  </div>
+                  <p className="text-sm font-medium text-slate-500 truncate mb-3">{chat.lastMessage}</p>
+                  <div className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-md text-[10px] font-bold bg-slate-100 text-slate-600 tracking-wide uppercase">
+                    <span className="w-1.5 h-1.5 rounded-full bg-brand shrink-0" />
+                    <span className="truncate">{chat.productName}</span>
+                  </div>
+                </div>
+              );
+            })}
+            {chats.length === 0 && <div className="p-8 text-slate-500 text-center text-sm font-medium">No active conversations.</div>}
           </div>
+        </div>
 
-          {/* Messages Thread */}
-          <div className="flex-1 overflow-y-auto p-4 space-y-4 flex flex-col bg-gray-50/50">
-            <AnimatePresence>
-              {messages.map(msg => {
-                const isMe = msg.senderId === user.uid;
-                return (
-                  <motion.div 
-                    key={msg.id}
-                    initial={{ opacity: 0, y: 10, scale: 0.95 }}
-                    animate={{ opacity: 1, y: 0, scale: 1 }}
-                    layout
-                    className={`flex flex-col max-w-[70%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}
-                  >
-                    <div className={`p-3 rounded-2xl shadow-sm ${isMe ? 'bg-black text-white rounded-br-sm' : 'bg-white text-gray-900 border border-gray-200 rounded-bl-sm'}`}>
-                      {msg.text}
+        {/* Right: Active Chat Thread */}
+        <div className={`w-full md:w-2/3 flex-col bg-slate-50 ${!isMobileListVisible ? 'flex' : 'hidden md:flex'}`}>
+          {activeChat ? (
+            <>
+              {/* Chat Header */}
+              <div className="p-4 sm:px-6 py-4 border-b border-slate-200 bg-white flex justify-between items-center sticky top-0 z-10 shadow-sm">
+                <div className="flex items-center gap-4">
+                  <button onClick={() => setIsMobileListVisible(true)} className="md:hidden p-2 -ml-2 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-full transition-colors">
+                    <ArrowLeft size={20} />
+                  </button>
+                  <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-lg font-extrabold text-brand relative">
+                    {(activeChat.buyerId === user.uid ? "S" : activeChat.buyerName?.charAt(0)) || "U"}
+                    <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
+                  </div>
+                  <div>
+                    <h2 className="font-extrabold text-slate-900 flex items-center gap-1.5 text-lg tracking-tight">
+                      {activeChat.buyerId === user.uid ? "Seller" : activeChat.buyerName}
+                      <CheckCircle2 size={16} className="text-brand" />
+                    </h2>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                      Discussing <span className="text-slate-900">{activeChat.productName}</span>
+                    </p>
+                  </div>
+                </div>
+                <button className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors shadow-sm border border-transparent hover:border-red-100" title="Report/Block User">
+                  <ShieldAlert size={20} />
+                </button>
+              </div>
+
+              {/* Messages Thread */}
+              <div className="flex-1 overflow-y-auto p-4 sm:p-6 space-y-5 flex flex-col scrollbar-hide">
+                {messages.length === 0 && (
+                  <div className="m-auto text-center p-8 bg-white border border-slate-200 rounded-2xl shadow-sm max-w-sm">
+                    <h3 className="font-extrabold text-slate-900 mb-2 text-lg">Start the conversation</h3>
+                    <p className="text-sm font-medium text-slate-500">Send a message or make an offer for {activeChat.productName}.</p>
+                  </div>
+                )}
+                {messages.map((msg, idx) => {
+                  const isMe = msg.senderId === user.uid;
+                  const showTimestamp = idx === messages.length - 1 || messages[idx + 1]?.senderId !== msg.senderId;
+                  const date = msg.timestamp?.toDate ? msg.timestamp.toDate() : null;
+                  const timeStr = date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
+
+                  return (
+                    <div key={msg.id} className={`flex flex-col max-w-[80%] sm:max-w-[70%] ${isMe ? 'ml-auto items-end' : 'mr-auto items-start'}`}>
+                      <div className={`px-5 py-3.5 rounded-2xl shadow-sm ${isMe
+                        ? 'bg-brand text-white rounded-br-sm'
+                        : 'bg-white text-slate-800 border border-slate-200 rounded-bl-sm'
+                        }`}>
+                        {msg.type === 'image' && msg.imageUrl ? (
+                          <img src={msg.imageUrl} alt="Sent image" className="max-w-full rounded-xl mb-1 cursor-pointer hover:opacity-90 transition-opacity border border-black/5" />
+                        ) : (
+                          <p className="text-[15px] font-medium leading-relaxed whitespace-pre-wrap break-words">{msg.text}</p>
+                        )}
+                      </div>
+                      {showTimestamp && timeStr && (
+                        <span className={`text-[10px] font-bold uppercase text-slate-400 mt-1 ${isMe ? 'mr-1' : 'ml-1'}`}>{timeStr}</span>
+                      )}
                     </div>
-                  </motion.div>
-                );
-              })}
-            </AnimatePresence>
-          </div>
+                  );
+                })}
+                <div ref={messagesEndRef} />
+              </div>
 
-          {/* Input Area */}
-          <div className="p-4 border-t border-gray-200 bg-white z-10">
-            <form onSubmit={handleSend} className="flex gap-2 items-center">
-              <button type="button" className="p-3 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded-full transition shrink-0">
-                <ImageIcon size={20} />
-              </button>
-              <input 
-                type="text" 
-                value={msgInput}
-                onChange={(e) => setMsgInput(e.target.value)}
-                placeholder="Type a message..." 
-                className="flex-1 bg-gray-100 border border-gray-200 rounded-full py-3 px-5 text-gray-900 placeholder-gray-500 focus:outline-none focus:ring-2 focus:ring-black transition"
-              />
-              <button 
-                type="submit" 
-                disabled={!msgInput.trim()}
-                className="p-3 bg-black hover:bg-gray-800 disabled:opacity-50 disabled:cursor-not-allowed text-white rounded-full transition shrink-0 shadow-sm"
-              >
-                <Send size={18} className="ml-1" />
-              </button>
-            </form>
-          </div>
-
-        </GlassCard>
-      ) : (
-        <div className="hidden md:flex w-2/3 h-full items-center justify-center text-gray-500 bg-gray-50/50 rounded-2xl border border-gray-200">
-          Select a conversation to start chatting
+              {/* Input Area */}
+              <div className="p-4 sm:px-6 border-t border-slate-200 bg-white">
+                <form onSubmit={handleSendText} className="flex gap-3 items-center bg-slate-50 border border-slate-200 rounded-full pl-3 pr-2 py-2 focus-within:ring-2 focus-within:ring-brand/50 focus-within:border-brand transition-all shadow-inner">
+                  <input type="file" accept="image/*" className="hidden" ref={fileInputRef} onChange={handleSendImage} />
+                  <button
+                    type="button"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={isUploading}
+                    className="p-2.5 text-slate-400 hover:text-brand hover:bg-brand/10 rounded-full transition-colors shrink-0 disabled:opacity-50"
+                  >
+                    {isUploading ? <Loader2 size={20} className="animate-spin" /> : <ImageIcon size={20} />}
+                  </button>
+                  <input
+                    type="text"
+                    value={msgInput}
+                    onChange={(e) => setMsgInput(e.target.value)}
+                    placeholder="Type a message..."
+                    className="flex-1 bg-transparent border-none focus:ring-0 font-medium text-[15px] text-slate-900 placeholder-slate-400 py-2 px-2 min-w-0"
+                  />
+                  <button
+                    type="submit"
+                    disabled={!msgInput.trim()}
+                    className="p-3 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:bg-slate-300 disabled:cursor-not-allowed text-white rounded-full transition-colors shrink-0 shadow-sm flex items-center justify-center"
+                  >
+                    <Send size={18} className="-ml-0.5" />
+                  </button>
+                </form>
+              </div>
+            </>
+          ) : (
+            <div className="flex-1 flex flex-col items-center justify-center text-center p-8 bg-slate-50">
+              <div className="w-20 h-20 bg-slate-200 rounded-2xl flex items-center justify-center mb-6 text-slate-400 shadow-sm">
+                <MessageCircle size={36} strokeWidth={2.5} />
+              </div>
+              <h3 className="text-xl font-extrabold text-slate-900 mb-2">Your Messages</h3>
+              <p className="text-sm font-medium text-slate-500 max-w-sm">Select a conversation from the list to start chatting with buyers or sellers.</p>
+            </div>
+          )}
         </div>
-      )}
+      </div>
     </div>
   );
 }
 
 export default function ChatPage() {
   return (
-    <Suspense fallback={<div className="text-white p-10">Loading chat...</div>}>
+    <Suspense fallback={
+      <div className="min-h-screen bg-slate-50 flex justify-center items-center">
+        <Loader2 className="animate-spin text-slate-400" size={40} />
+      </div>
+    }>
       <ChatContent />
     </Suspense>
   );
