@@ -9,8 +9,8 @@ import { Eye, EyeOff } from "lucide-react";
 import { useStore } from "@/store/useStore";
 
 export default function AuthPage() {
-  const [step, setStep] = useState<"login" | "otp" | "profile" | "success">("login");
-  const [isLoginMode, setIsLoginMode] = useState(false);
+  const [step, setStep] = useState<"login" | "otp" | "profile" | "success" | "forgot-password" | "reset-password">("login");
+  const [isLoginMode, setIsLoginMode] = useState(true);
   const [isLoading, setIsLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -19,6 +19,7 @@ export default function AuthPage() {
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [newPassword, setNewPassword] = useState("");
   
   // Profile state
   const [name, setName] = useState("");
@@ -98,6 +99,62 @@ export default function AuthPage() {
       setStep("profile");
     } catch (err: any) {
       setErrorMsg(err.message || "OTP verification failed");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleForgotPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    const allowedDomain = "@rgipt.ac.in";
+    if (!email.endsWith(allowedDomain)) {
+      setErrorMsg("Please enter a valid RGIPT email.");
+      return;
+    }
+    
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/forgot-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "Failed to request password reset");
+      
+      setStep("reset-password");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to request password reset");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleResetPassword = async (e: React.FormEvent) => {
+    e.preventDefault();
+    setErrorMsg("");
+    setIsLoading(true);
+    try {
+      const res = await fetch('/api/auth/reset-password', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email, otp, newPassword })
+      });
+      const data = await res.json();
+      
+      if (!res.ok) throw new Error(data.error || "Failed to reset password");
+      
+      // Success, go back to login
+      setStep("login");
+      setIsLoginMode(true);
+      setPassword("");
+      setNewPassword("");
+      setOtp("");
+      setErrorMsg("");
+    } catch (err: any) {
+      setErrorMsg(err.message || "Failed to reset password");
     } finally {
       setIsLoading(false);
     }
@@ -201,6 +258,14 @@ export default function AuthPage() {
                   </button>
                 </motion.div>
                 
+                {isLoginMode && (
+                  <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="flex justify-end">
+                    <button type="button" onClick={() => setStep("forgot-password")} className="text-xs text-brand font-bold hover:underline">
+                      Forgot Password?
+                    </button>
+                  </motion.div>
+                )}
+                
                 <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} type="submit" disabled={isLoading} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
                   {isLoading ? <Loader2 className="animate-spin" size={18} /> : (isLoginMode ? "Sign In" : "Continue")}
                   {!isLoading && <ArrowRight size={18} />}
@@ -254,6 +319,115 @@ export default function AuthPage() {
               <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center mt-6">
                 <button onClick={() => setStep("login")} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
                   Cancel Registration
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {step === "forgot-password" && (
+            <motion.div
+              key="forgot-password"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">Reset Password</h2>
+                <p className="text-slate-500 text-sm font-medium">Enter your email to receive a code</p>
+              </div>
+
+              {errorMsg && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm font-medium text-center shadow-sm">
+                  {errorMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleForgotPassword} className="space-y-4">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
+                  <Mail className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input
+                    type="email"
+                    value={email}
+                    onChange={(e) => setEmail(e.target.value)}
+                    required
+                    placeholder="RGIPT Email"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm"
+                  />
+                </motion.div>
+                
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} type="submit" disabled={isLoading} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
+                  {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Send Reset Code"}
+                  {!isLoading && <ArrowRight size={18} />}
+                </motion.button>
+              </form>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.3 }} className="text-center mt-6">
+                <button onClick={() => { setStep("login"); setErrorMsg(""); }} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
+                  Back to Sign In
+                </button>
+              </motion.div>
+            </motion.div>
+          )}
+
+          {step === "reset-password" && (
+            <motion.div
+              key="reset-password"
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              exit={{ opacity: 0, x: 20 }}
+              transition={{ duration: 0.3 }}
+            >
+              <div className="text-center mb-8">
+                <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">Create New Password</h2>
+                <p className="text-slate-500 text-sm font-medium">We sent a 6-digit code to <br/><span className="font-bold text-slate-700">{email}</span></p>
+              </div>
+
+              {errorMsg && (
+                <div className="mb-6 p-3 bg-red-50 border border-red-100 rounded-xl text-red-500 text-sm font-medium text-center shadow-sm">
+                  {errorMsg}
+                </div>
+              )}
+
+              <form onSubmit={handleResetPassword} className="space-y-4">
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.1 }} className="relative">
+                  <Lock className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input
+                    type="text"
+                    value={otp}
+                    onChange={(e) => setOtp(e.target.value.replace(/\D/g, '').slice(0, 6))}
+                    required
+                    placeholder="Enter 6-digit code"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm tracking-widest font-mono text-center text-lg mb-2"
+                  />
+                </motion.div>
+
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }} className="relative">
+                  <Lock className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <input
+                    type={showPassword ? "text" : "password"}
+                    value={newPassword}
+                    onChange={(e) => setNewPassword(e.target.value)}
+                    required
+                    placeholder="New Password"
+                    className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-12 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm"
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute right-3 top-3.5 text-slate-400 hover:text-slate-600 transition-colors"
+                  >
+                    {showPassword ? <EyeOff size={18} /> : <Eye size={18} />}
+                  </button>
+                </motion.div>
+                
+                <motion.button initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} type="submit" disabled={isLoading || otp.length !== 6 || newPassword.length < 6} className="w-full py-3 mt-2 bg-brand hover:bg-brand-dark disabled:opacity-50 disabled:cursor-not-allowed text-white font-bold rounded-xl flex justify-center items-center gap-2 transition-all shadow-sm">
+                  {isLoading ? <Loader2 className="animate-spin" size={18} /> : "Update Password"}
+                  {!isLoading && <ArrowRight size={18} />}
+                </motion.button>
+              </form>
+              <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ delay: 0.4 }} className="text-center mt-6">
+                <button onClick={() => { setStep("login"); setErrorMsg(""); }} className="text-sm text-slate-500 hover:text-brand transition-colors font-bold">
+                  Cancel
                 </button>
               </motion.div>
             </motion.div>
