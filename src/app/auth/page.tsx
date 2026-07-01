@@ -35,7 +35,7 @@ export default function AuthPage() {
     setErrorMsg("");
     const allowedDomain = "@rgipt.ac.in";
     if (!email.endsWith(allowedDomain)) {
-      setErrorMsg("Only RGIPT students can register.");
+      setErrorMsg("Only @rgipt.ac.in emails are allowed.");
       return;
     }
     
