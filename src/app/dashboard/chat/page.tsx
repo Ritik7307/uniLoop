@@ -42,11 +42,87 @@ function ChatContent() {
     scrollToBottom();
   }, [messages]);
 
-  // Load Messages for Active Chat
+  // Fetch chats on mount and poll
+  const fetchChats = async () => {
+    if (!user) return;
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch('/api/chats', {
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        const formatted = data.chats.map((c: any) => ({ ...c, id: c._id }));
+        setChats(formatted);
+        
+        // Update activeChat messages if it's currently selected
+        if (activeChat) {
+          const updatedChat = formatted.find((c: any) => c.id === activeChat.id);
+          if (updatedChat) {
+            setMessages(updatedChat.messages || []);
+          }
+        }
+      }
+    } catch (err) {
+      console.error(err);
+    }
+  };
+
+  useEffect(() => {
+    fetchChats();
+    // Poll every 5 seconds for new messages
+    const interval = setInterval(fetchChats, 5000);
+    return () => clearInterval(interval);
+  }, [user, activeChat?.id]);
+
+  // Handle Initializing New Chat from URL Params
+  useEffect(() => {
+    const initChat = async () => {
+      if (!user || !initProductId || !initSellerId) return;
+      try {
+        const token = localStorage.getItem('token');
+        
+        // Fetch product details to get name
+        const prodRes = await fetch(`/api/products/${initProductId}`);
+        let productName = "Item";
+        if (prodRes.ok) {
+          const pData = await prodRes.json();
+          productName = pData.product?.title || "Item";
+        }
+
+        const res = await fetch('/api/chats', {
+          method: 'POST',
+          headers: { 
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${token}` 
+          },
+          body: JSON.stringify({
+            productId: initProductId,
+            sellerId: initSellerId,
+            buyerName: user.name,
+            productName: productName
+          })
+        });
+        if (res.ok) {
+          const data = await res.json();
+          const chatData = { ...data.chat, id: data.chat._id };
+          setActiveChat(chatData);
+          setMessages(chatData.messages || []);
+          setIsMobileListVisible(false);
+          // Remove URL params to avoid re-triggering
+          router.replace('/dashboard/chat');
+        }
+      } catch (error) {
+        console.error("Failed to initialize chat:", error);
+      }
+    };
+    initChat();
+  }, [user, initProductId, initSellerId, router]);
+
+  // Load Messages for Active Chat when manually selected
   useEffect(() => {
     if (!activeChat) return;
-    // Will fetch messages from database here
-    setMessages([]);
+    setMessages(activeChat.messages || []);
   }, [activeChat]);
 
   const handleSendText = async (e: React.FormEvent) => {
@@ -56,19 +132,24 @@ function ChatContent() {
     const text = msgInput.trim();
     setMsgInput("");
 
-    const newMsg = {
-      id: Date.now().toString(),
-      text,
-      type: "text",
-      senderId: user.uid,
-      timestamp: new Date()
-    };
-    
-    setMessages(prev => [...prev, newMsg]);
+    // Optimistic UI Update
+    const optimisticMsg = { id: Date.now().toString(), text, type: "text", senderId: user.uid, timestamp: new Date() };
+    setMessages(prev => [...prev, optimisticMsg]);
 
-    setChats(prev => prev.map(c => 
-      c.id === activeChat.id ? { ...c, lastMessage: text, lastMessageTime: new Date() } : c
-    ));
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/chats/${activeChat.id}/messages`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ text, type: "text" })
+      });
+      fetchChats(); // Refresh to get official timestamp & sync
+    } catch (err) {
+      console.error(err);
+    }
   };
 
   const handleSendImage = async (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -82,19 +163,20 @@ function ChatContent() {
       const compressedFile = await imageCompression(file, options);
       const base64String = await blobToBase64(compressedFile);
 
-      const newMsg = {
-        id: Date.now().toString(),
-        imageUrl: base64String,
-        type: "image",
-        senderId: user.uid,
-        timestamp: new Date()
-      };
-      
-      setMessages(prev => [...prev, newMsg]);
+      // Optimistic Update
+      const optimisticMsg = { id: Date.now().toString(), imageUrl: base64String, type: "image", senderId: user.uid, timestamp: new Date() };
+      setMessages(prev => [...prev, optimisticMsg]);
 
-      setChats(prev => prev.map(c => 
-        c.id === activeChat.id ? { ...c, lastMessage: "Sent an image", lastMessageTime: new Date() } : c
-      ));
+      const token = localStorage.getItem('token');
+      await fetch(`/api/chats/${activeChat.id}/messages`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ imageUrl: base64String, type: "image" })
+      });
+      fetchChats();
     } catch (error) {
       console.error("Error sending image:", error);
       alert("Failed to send image.");
@@ -126,7 +208,7 @@ function ChatContent() {
               const displayName = isMeBuyer ? "Seller" : chat.buyerName;
               const isActive = activeChat?.id === chat.id;
 
-              const date = chat.lastMessageTime?.toDate ? chat.lastMessageTime.toDate() : null;
+              const date = chat.lastMessageTime ? new Date(chat.lastMessageTime) : null;
               const timeString = date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
               return (
@@ -191,7 +273,7 @@ function ChatContent() {
                 {messages.map((msg, idx) => {
                   const isMe = msg.senderId === user.uid;
                   const showTimestamp = idx === messages.length - 1 || messages[idx + 1]?.senderId !== msg.senderId;
-                  const date = msg.timestamp?.toDate ? msg.timestamp.toDate() : null;
+                  const date = msg.timestamp ? new Date(msg.timestamp) : null;
                   const timeStr = date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';
 
                   return (

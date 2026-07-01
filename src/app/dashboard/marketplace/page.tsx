@@ -134,8 +134,17 @@ export default function MarketplacePage() {
 
         {/* Product Grid */}
         {isLoading ? (
-          <div className="flex justify-center items-center py-32">
-            <Loader2 className="animate-spin text-slate-400" size={32} />
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {[1, 2, 3, 4, 5, 6, 7, 8].map((n) => (
+              <div key={n} className="bg-white border border-slate-100 rounded-2xl overflow-hidden h-full flex flex-col animate-pulse">
+                <div className="aspect-[4/3] bg-slate-200 w-full" />
+                <div className="p-5 flex-1 flex flex-col gap-3">
+                  <div className="h-4 bg-slate-200 rounded-md w-3/4" />
+                  <div className="h-6 bg-slate-200 rounded-md w-1/3" />
+                  <div className="h-3 bg-slate-200 rounded-md w-1/2 mt-auto" />
+                </div>
+              </div>
+            ))}
           </div>
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">

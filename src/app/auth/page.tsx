@@ -56,8 +56,7 @@ export default function AuthPage() {
           setUser(data.user);
           setWalletBalance(data.user.walletBalance || 0);
           setMonthlyBudget(data.user.monthlyBudget || 5000);
-          setStep("success");
-          setTimeout(() => router.push("/dashboard/marketplace"), 1000);
+          router.push("/dashboard/marketplace");
         }
       } else {
         const res = await fetch('/api/auth/register', {

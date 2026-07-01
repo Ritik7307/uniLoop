@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
@@ -14,6 +14,26 @@ if (typeof window !== "undefined") {
 }
 
 export default function LandingPage() {
+  const [stats, setStats] = useState({ users: 0, products: 0 });
+  
+  useEffect(() => {
+    const fetchStats = async () => {
+      try {
+        const res = await fetch('/api/stats');
+        if (res.ok) {
+          const data = await res.json();
+          setStats({
+            users: data.users || 0,
+            products: data.products || 0
+          });
+        }
+      } catch (err) {
+        console.error("Failed to fetch stats", err);
+      }
+    };
+    fetchStats();
+  }, []);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const { scrollYProgress } = useScroll({
     target: containerRef,
@@ -117,12 +137,12 @@ export default function LandingPage() {
           >
             <div className="flex items-center gap-2 text-slate-600 font-medium">
               <Users className="text-brand" size={20} />
-              <span>500+ Verified Students</span>
+              <span>{stats.users.toLocaleString()} Verified Students</span>
             </div>
             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden md:block"></div>
             <div className="flex items-center gap-2 text-slate-600 font-medium">
               <ShoppingBag className="text-brand" size={20} />
-              <span>1,200+ Items Listed</span>
+              <span>{stats.products.toLocaleString()} Items Listed</span>
             </div>
             <div className="w-1.5 h-1.5 rounded-full bg-slate-300 hidden md:block"></div>
             <div className="flex items-center gap-2 text-slate-600 font-medium">
