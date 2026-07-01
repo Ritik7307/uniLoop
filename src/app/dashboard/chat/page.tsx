@@ -112,8 +112,8 @@ function ChatContent() {
   if (!user) return <div className="p-10 text-slate-700 bg-slate-50 min-h-screen text-center font-bold">Please login to access chats.</div>;
 
   return (
-    <div className="h-[calc(100vh-64px)] max-h-screen pt-4 pb-8 px-4 sm:px-6 lg:px-8 bg-slate-50">
-      <div className="max-w-6xl mx-auto h-full flex bg-white border border-slate-200 rounded-3xl shadow-sm overflow-hidden">
+    <div className="h-full w-full bg-slate-50 sm:p-4 md:p-6 lg:p-8">
+      <div className="max-w-6xl mx-auto h-full flex bg-white sm:border border-slate-200 sm:rounded-3xl shadow-sm overflow-hidden">
 
         {/* Left: Chat List */}
         <div className={`w-full md:w-1/3 flex-col border-r border-slate-200 ${isMobileListVisible ? 'flex' : 'hidden md:flex'}`}>

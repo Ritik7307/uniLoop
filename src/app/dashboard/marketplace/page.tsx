@@ -71,7 +71,7 @@ export default function MarketplacePage() {
           </div>
 
           {/* Main Navigation Tabs */}
-          <div className="flex gap-8 mt-8 border-b border-slate-100">
+          <div className="flex gap-4 md:gap-8 mt-8 border-b border-slate-100 overflow-x-auto scrollbar-hide whitespace-nowrap">
             {[
               { id: "sale", label: "For Sale" },
               { id: "lost_found", label: "Lost & Found" },

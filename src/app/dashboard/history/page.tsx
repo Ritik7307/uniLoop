@@ -26,22 +26,22 @@ export default function UserHistoryPage() {
 
       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Tabs */}
-        <div className="flex border-b border-slate-200">
+        <div className="flex border-b border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
           <button 
             onClick={() => setActiveTab("posted")}
-            className={`flex-1 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "posted" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
+            className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "posted" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
             Posted Items
           </button>
           <button 
             onClick={() => setActiveTab("sold")}
-            className={`flex-1 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "sold" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
+            className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "sold" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
             Items Sold
           </button>
           <button 
             onClick={() => setActiveTab("bought")}
-            className={`flex-1 py-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "bought" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
+            className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "bought" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
             Items Bought
           </button>
