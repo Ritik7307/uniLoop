@@ -1,39 +1,34 @@
 import { NextResponse } from 'next/server';
 import connectMongo from '@/lib/mongodb';
 import { User } from '@/models/User';
-import jwt from 'jsonwebtoken';
+import { getServerSession } from 'next-auth';
 
 export async function POST(request: Request) {
   try {
-    const authHeader = request.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
-    }
-    const token = authHeader.split(' ')[1];
-    let decoded: any;
-    try {
-      decoded = jwt.verify(token, process.env.JWT_SECRET || 'fallback_secret');
-    } catch (e) {
-      return NextResponse.json({ error: "Invalid token" }, { status: 401 });
+    const session = await getServerSession();
+    if (!session || !session.user || !(session.user as any).email) {
+      return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const userId = decoded.userId;
+    await connectMongo();
+
+    const currentUser = await User.findOne({ email: (session.user as any).email });
+    if (!currentUser) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
+    }
+
+    const userId = currentUser._id.toString();
     const { targetUserId } = await request.json();
 
     if (!targetUserId) {
       return NextResponse.json({ error: "Target user ID is required" }, { status: 400 });
     }
 
-    await connectMongo();
 
-    const user = await User.findById(userId);
-    if (!user) {
-      return NextResponse.json({ error: "User not found" }, { status: 404 });
-    }
 
     // Toggle logic: if already blocked, unblock, else block
     let updatedUser;
-    if (user.blockedUsers && user.blockedUsers.includes(targetUserId)) {
+    if (currentUser.blockedUsers && currentUser.blockedUsers.includes(targetUserId)) {
       updatedUser = await User.findByIdAndUpdate(
         userId,
         { $pull: { blockedUsers: targetUserId } },

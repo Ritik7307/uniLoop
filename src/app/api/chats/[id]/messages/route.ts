@@ -1,7 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
-import { verifyToken } from '@/lib/auth';
+import { getServerSession } from 'next-auth';
 import { User } from '@/models/User';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -9,15 +9,14 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await dbConnect();
     const id = (await params).id;
     
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const session = await getServerSession();
+    if (!session || !session.user || !(session.user as any).email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded: any = verifyToken(token);
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await User.findOne({ email: (session.user as any).email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const chat = await Chat.findById(id);
@@ -26,20 +25,18 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     }
 
     // Verify user is part of chat
-    if (chat.buyerId.toString() !== decoded.userId && chat.sellerId.toString() !== decoded.userId) {
+    if (chat.buyerId.toString() !== user._id.toString() && chat.sellerId.toString() !== user._id.toString()) {
       return NextResponse.json({ error: 'Forbidden' }, { status: 403 });
     }
 
-    const recipientId = chat.buyerId.toString() === decoded.userId ? chat.sellerId.toString() : chat.buyerId.toString();
+    const recipientId = chat.buyerId.toString() === user._id.toString() ? chat.sellerId.toString() : chat.buyerId.toString();
 
     // Check if recipient has blocked the sender or vice-versa
     const recipientUser = await User.findById(recipientId);
-    const senderUser = await User.findById(decoded.userId);
-
-    if (recipientUser?.blockedUsers?.includes(decoded.userId)) {
+    if (recipientUser?.blockedUsers?.includes(user._id.toString())) {
       return NextResponse.json({ error: 'You are blocked by this user' }, { status: 403 });
     }
-    if (senderUser?.blockedUsers?.includes(recipientId)) {
+    if (user?.blockedUsers?.includes(recipientId)) {
       return NextResponse.json({ error: 'You have blocked this user' }, { status: 403 });
     }
 
@@ -49,7 +46,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
       text: body.text,
       imageUrl: body.imageUrl,
       type: body.type || 'text',
-      senderId: decoded.userId,
+      senderId: user._id,
       timestamp: new Date()
     };
 

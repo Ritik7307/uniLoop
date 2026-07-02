@@ -62,10 +62,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) return;
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/products/${product.id}`, {
-        method: 'DELETE',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'DELETE'
       });
       router.push("/dashboard/marketplace");
     } catch (error) {
@@ -79,12 +77,10 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
     setIsUpdatingStatus(true);
     const newStatus = product.status === "sold" ? "available" : "sold";
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/products/${product.id}`, {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ status: newStatus })
       });

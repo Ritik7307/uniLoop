@@ -47,10 +47,7 @@ function ChatContent() {
   const fetchChats = async () => {
     if (!user) return;
     try {
-      const token = localStorage.getItem('token');
-      const res = await fetch('/api/chats', {
-        headers: { 'Authorization': `Bearer ${token}` }
-      });
+      const res = await fetch('/api/chats');
       if (res.ok) {
         const data = await res.json();
         const formatted = data.chats.map((c: any) => ({ ...c, id: c._id }));
@@ -81,8 +78,6 @@ function ChatContent() {
     const initChat = async () => {
       if (!user || !initProductId || !initSellerId) return;
       try {
-        const token = localStorage.getItem('token');
-        
         // Fetch product details to get name
         const prodRes = await fetch(`/api/products/${initProductId}`);
         let productName = "Item";
@@ -94,8 +89,7 @@ function ChatContent() {
         const res = await fetch('/api/chats', {
           method: 'POST',
           headers: { 
-            'Content-Type': 'application/json',
-            'Authorization': `Bearer ${token}` 
+            'Content-Type': 'application/json'
           },
           body: JSON.stringify({
             productId: initProductId,
@@ -138,12 +132,10 @@ function ChatContent() {
     setMessages(prev => [...prev, optimisticMsg]);
 
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/chats/${activeChat.id}/messages`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ text, type: "text" })
       });
@@ -168,12 +160,10 @@ function ChatContent() {
       const optimisticMsg = { id: Date.now().toString(), imageUrl: base64String, type: "image", senderId: user.uid, timestamp: new Date() };
       setMessages(prev => [...prev, optimisticMsg]);
 
-      const token = localStorage.getItem('token');
       await fetch(`/api/chats/${activeChat.id}/messages`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ imageUrl: base64String, type: "image" })
       });
@@ -198,10 +188,8 @@ function ChatContent() {
     if (!confirm("Are you sure you want to delete this chat? It will be hidden until a new message arrives.")) return;
 
     try {
-      const token = localStorage.getItem('token');
       await fetch(`/api/chats/${activeChat.id}/delete`, {
-        method: 'POST',
-        headers: { 'Authorization': `Bearer ${token}` }
+        method: 'POST'
       });
       setActiveChat(null);
       setIsMenuOpen(false);
@@ -218,12 +206,10 @@ function ChatContent() {
     if (!confirm("Are you sure you want to block this user? They will not be able to message you.")) return;
 
     try {
-      const token = localStorage.getItem('token');
       const res = await fetch(`/api/users/block`, {
         method: 'POST',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}` 
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ targetUserId })
       });

@@ -120,12 +120,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         uploadedImageUrls.push(base64String);
       }
 
-      const token = localStorage.getItem('token');
       await fetch(`/api/products/${productId}`, {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({
           title,

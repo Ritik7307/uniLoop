@@ -20,12 +20,7 @@ export default function NotificationProvider({ children }: { children: React.Rea
 
     const checkForNewMessages = async () => {
       try {
-        const token = localStorage.getItem('token');
-        if (!token) return;
-
-        const res = await fetch('/api/chats', {
-          headers: { 'Authorization': `Bearer ${token}` }
-        });
+        const res = await fetch('/api/chats');
         
         if (!res.ok) return;
         

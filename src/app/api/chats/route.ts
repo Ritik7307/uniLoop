@@ -2,31 +2,28 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
 import { User } from '@/models/User';
-import { verifyToken } from '@/lib/auth';
-
+import { getServerSession } from 'next-auth';
 export async function GET(req: Request) {
   try {
     await dbConnect();
     
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const session = await getServerSession();
+    if (!session || !session.user || !(session.user as any).email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded: any = verifyToken(token);
-    
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await User.findOne({ email: (session.user as any).email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     // Find chats where user is buyer or seller
     const chats = await Chat.find({
       $or: [
-        { buyerId: decoded.userId },
-        { sellerId: decoded.userId }
+        { buyerId: user._id },
+        { sellerId: user._id }
       ],
-      deletedBy: { $ne: decoded.userId }
+      deletedBy: { $ne: user._id }
     }).sort({ lastMessageTime: -1 }).lean();
     
     const enrichedChats = await Promise.all(chats.map(async (chat) => {
@@ -49,16 +46,14 @@ export async function POST(req: Request) {
   try {
     await dbConnect();
     
-    const authHeader = req.headers.get('authorization');
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
+    const session = await getServerSession();
+    if (!session || !session.user || !(session.user as any).email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
 
-    const token = authHeader.split(' ')[1];
-    const decoded: any = verifyToken(token);
-    
-    if (!decoded || !decoded.userId) {
-      return NextResponse.json({ error: 'Invalid token' }, { status: 401 });
+    const user = await User.findOne({ email: (session.user as any).email });
+    if (!user) {
+      return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
     const body = await req.json();
@@ -67,15 +62,15 @@ export async function POST(req: Request) {
     let chat = await Chat.findOne({
       productId: body.productId,
       $or: [
-        { buyerId: decoded.userId, sellerId: body.sellerId },
-        { sellerId: decoded.userId, buyerId: body.sellerId }
+        { buyerId: user._id, sellerId: body.sellerId },
+        { sellerId: user._id, buyerId: body.sellerId }
       ]
     });
 
     if (!chat) {
       chat = await Chat.create({
         ...body,
-        buyerId: decoded.userId,
+        buyerId: user._id,
         messages: []
       });
     }
