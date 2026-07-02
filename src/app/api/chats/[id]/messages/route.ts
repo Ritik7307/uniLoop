@@ -2,6 +2,7 @@ import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { User } from '@/models/User';
 
 export async function POST(req: Request, { params }: { params: Promise<{ id: string }> }) {
@@ -9,7 +10,7 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
     await dbConnect();
     const id = (await params).id;
     
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !(session.user as any).email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }

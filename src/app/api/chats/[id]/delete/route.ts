@@ -2,11 +2,12 @@ import { NextResponse } from 'next/server';
 import connectMongo from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
 import { getServerSession } from 'next-auth';
+import { authOptions } from '@/app/api/auth/[...nextauth]/route';
 import { User } from '@/models/User';
 
 export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
-    const session = await getServerSession();
+    const session = await getServerSession(authOptions);
     if (!session || !session.user || !(session.user as any).email) {
       return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
     }
