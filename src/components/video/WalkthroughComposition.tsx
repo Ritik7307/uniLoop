@@ -9,16 +9,19 @@ export const WalkthroughComposition: React.FC = () => {
   const titleOpacity = interpolate(frame, [0, 15], [0, 1], { extrapolateRight: "clamp" });
   const titleY = spring({ frame, fps, config: { damping: 12 } });
 
-  // Scene 2: The Process (Buy, Sell, Save)
-  const processOpacity = interpolate(frame, [60, 75], [0, 1], { extrapolateRight: "clamp" });
-  
+  // Scene 2: Features (Buy, Sell, Chat)
+  const featuresOpacity = interpolate(frame, [70, 85], [0, 1], { extrapolateRight: "clamp" });
+
+  // Scene 3: Safety / Verification
+  const safetyOpacity = interpolate(frame, [180, 195], [0, 1], { extrapolateRight: "clamp" });
+
   return (
     <AbsoluteFill className="bg-slate-900 text-white flex items-center justify-center font-sans overflow-hidden relative">
       {/* Background Gradient */}
       <div className="absolute inset-0 opacity-20 bg-[radial-gradient(ellipse_at_center,_var(--tw-gradient-stops))] from-blue-500 via-slate-900 to-slate-900" />
       
       {/* Scene 1: Welcome */}
-      <Sequence from={0} durationInFrames={70}>
+      <Sequence from={0} durationInFrames={80}>
         <AbsoluteFill className="flex items-center justify-center">
           <div 
             style={{ 
@@ -34,30 +37,53 @@ export const WalkthroughComposition: React.FC = () => {
       </Sequence>
 
       {/* Scene 2: Feature highlights */}
-      <Sequence from={60} durationInFrames={120}>
-        <AbsoluteFill className="flex items-center justify-center">
-          <div 
-            style={{ opacity: processOpacity }}
-            className="flex flex-col items-center gap-8"
+      <Sequence from={70} durationInFrames={120}>
+        <AbsoluteFill className="flex items-center justify-center flex-col">
+          <h2 
+            style={{ opacity: featuresOpacity }} 
+            className="text-4xl font-bold mb-10 text-white"
           >
-            <div className="flex gap-6">
-               <FeatureCard frame={frame} offset={65} icon="🛍️" title="Buy" desc="Find what you need" />
-               <FeatureCard frame={frame} offset={75} icon="💰" title="Sell" desc="Turn items to cash" />
-               <FeatureCard frame={frame} offset={85} icon="🤝" title="Trade" desc="Safe on campus" />
-            </div>
+            Everything you need
+          </h2>
+          <div 
+            style={{ opacity: featuresOpacity }}
+            className="flex gap-6"
+          >
+             <FeatureCard frame={frame} offset={75} icon="🛍️" title="Thrift & Trade" desc="Find dorm essentials & books" />
+             <FeatureCard frame={frame} offset={85} icon="💬" title="Quick Chats" desc="Secure in-app messaging" />
+             <FeatureCard frame={frame} offset={95} icon="💰" title="Save Money" desc="Deals from people you know" />
           </div>
         </AbsoluteFill>
       </Sequence>
 
-      {/* Scene 3: Conclusion */}
-      <Sequence from={170}>
+      {/* Scene 3: Safety & Verification */}
+      <Sequence from={180} durationInFrames={100}>
+        <AbsoluteFill className="flex items-center justify-center">
+          <div 
+            style={{ opacity: safetyOpacity }}
+            className="flex flex-col items-center gap-6 max-w-2xl text-center"
+          >
+            <div className="w-24 h-24 bg-emerald-500/20 text-emerald-500 rounded-full flex items-center justify-center text-5xl mb-4 border border-emerald-500/30">
+              🛡️
+            </div>
+            <h2 className="text-5xl font-bold text-white mb-2">100% Safe & Verified</h2>
+            <p className="text-2xl text-slate-400 font-medium">
+              Only real RGIPT students allowed. <br/>
+              We verify everyone using official college emails.
+            </p>
+          </div>
+        </AbsoluteFill>
+      </Sequence>
+
+      {/* Scene 4: Conclusion */}
+      <Sequence from={270}>
         <AbsoluteFill className="flex items-center justify-center">
           <h2 
              style={{
-               opacity: interpolate(frame, [170, 185], [0, 1], { extrapolateRight: "clamp" }),
-               transform: `scale(${spring({ frame: frame - 170, fps, config: { damping: 12 } })})`
+               opacity: interpolate(frame, [270, 285], [0, 1], { extrapolateRight: "clamp" }),
+               transform: `scale(${spring({ frame: frame - 270, fps, config: { damping: 12 } })})`
              }}
-             className="text-5xl font-bold text-white text-center"
+             className="text-6xl font-bold text-white text-center"
           >
             Stay in the <span className="text-blue-500">Loop.</span>
           </h2>

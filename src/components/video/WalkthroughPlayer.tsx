@@ -15,7 +15,7 @@ export const WalkthroughPlayer: React.FC = () => {
       <div className="pt-8 aspect-video">
         <Player
           component={WalkthroughComposition}
-          durationInFrames={240}
+          durationInFrames={360}
           compositionWidth={1280}
           compositionHeight={720}
           fps={30}

@@ -80,7 +80,7 @@ export default function LandingPage() {
     <div ref={containerRef} className="relative w-full overflow-hidden">
       
       {/* Hero Section */}
-      <section className="relative min-h-screen flex flex-col items-center justify-center pt-32 pb-20 px-6">
+      <section className="relative flex flex-col items-center justify-center pt-24 pb-16 px-6">
         <div className="absolute inset-0 bg-white pointer-events-none"></div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
         
@@ -155,7 +155,7 @@ export default function LandingPage() {
       </section>
 
       {/* Video Walkthrough Section */}
-      <section className="relative z-20 -mt-16 mb-24 px-6 w-full max-w-7xl mx-auto">
+      <section className="relative z-20 mb-16 px-6 w-full max-w-7xl mx-auto">
         <motion.div
           initial={{ opacity: 0, y: 40 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -167,7 +167,7 @@ export default function LandingPage() {
       </section>
 
       {/* Features Section */}
-      <section className="features-section relative py-32 px-6 bg-slate-50">
+      <section className="features-section relative py-16 md:py-24 px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
           <div className="text-center mb-20">
             <h2 className="text-4xl md:text-5xl font-bold mb-6 text-slate-900 tracking-tight">Everything you need, <br/><span className="text-brand">right on campus.</span></h2>
@@ -203,7 +203,7 @@ export default function LandingPage() {
       </section>
 
       {/* How it Works / Timeline */}
-      <section className="timeline-section relative py-32 px-6">
+      <section className="timeline-section relative py-16 md:py-24 px-6">
         <div className="max-w-4xl mx-auto">
           <h2 className="text-4xl md:text-5xl font-bold mb-16 text-center">How it works</h2>
           <div className="space-y-8 relative before:absolute before:inset-0 before:ml-5 before:-translate-x-px md:before:mx-auto md:before:translate-x-0 before:h-full before:w-0.5 before:bg-gradient-to-b before:from-transparent before:via-gray-300 before:to-transparent">
