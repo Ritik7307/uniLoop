@@ -3,7 +3,7 @@ import connectMongo from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
 import jwt from 'jsonwebtoken';
 
-export async function POST(request: Request, { params }: { params: { id: string } }) {
+export async function POST(request: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     const authHeader = request.headers.get('authorization');
     if (!authHeader || !authHeader.startsWith('Bearer ')) {
@@ -17,7 +17,7 @@ export async function POST(request: Request, { params }: { params: { id: string 
       return NextResponse.json({ error: "Invalid token" }, { status: 401 });
     }
 
-    const { id: chatId } = params;
+    const { id: chatId } = await params;
     const userId = decoded.userId;
 
     await connectMongo();
