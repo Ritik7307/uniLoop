@@ -1,65 +1,63 @@
 "use client";
 
+import { SessionProvider, useSession } from "next-auth/react";
 import { useEffect, useState } from "react";
 import { useStore } from "@/store/useStore";
 import { usePathname, useRouter } from "next/navigation";
 
-export function AuthProvider({ children }: { children: React.ReactNode }) {
+function AuthSync({ children }: { children: React.ReactNode }) {
+  const { data: session, status } = useSession();
   const { user, setUser, setWalletBalance, setMonthlyBudget } = useStore();
-  const [loading, setLoading] = useState(true);
   const pathname = usePathname();
   const router = useRouter();
 
   useEffect(() => {
-    const checkAuth = async () => {
-      const token = localStorage.getItem('token');
-      if (!token) {
-        setUser(null);
-        setLoading(false);
-        return;
-      }
-
-      try {
-        const res = await fetch('/api/auth/me', {
-          headers: {
-            'Authorization': `Bearer ${token}`
+    const syncUser = async () => {
+      if (status === "authenticated" && session?.user?.email) {
+        try {
+          const res = await fetch('/api/profile');
+          if (res.ok) {
+            const data = await res.json();
+            setUser(data.user);
+            setWalletBalance(data.user.walletBalance || 0);
+            setMonthlyBudget(data.user.monthlyBudget || 5000);
+          } else {
+            setUser(null);
           }
-        });
-        
-        if (res.ok) {
-          const data = await res.json();
-          setUser(data.user);
-          setWalletBalance(data.user.walletBalance || 0);
-          setMonthlyBudget(data.user.monthlyBudget || 5000);
-        } else {
-          localStorage.removeItem('token');
+        } catch (error) {
+          console.error("Auth sync failed:", error);
           setUser(null);
         }
-      } catch (error) {
-        console.error("Auth check failed:", error);
+      } else if (status === "unauthenticated") {
         setUser(null);
-      } finally {
-        setLoading(false);
       }
     };
-
-    checkAuth();
-  }, [setUser, setWalletBalance, setMonthlyBudget]);
+    syncUser();
+  }, [session, status, setUser, setWalletBalance, setMonthlyBudget]);
 
   useEffect(() => {
-    if (!loading && !user && pathname.startsWith('/dashboard')) {
+    if (status === "unauthenticated" && pathname.startsWith('/dashboard')) {
       router.push('/auth');
     }
-  }, [loading, user, pathname, router]);
+  }, [status, pathname, router]);
 
-  if (loading) {
+  if (status === "loading") {
     return <div className="min-h-screen bg-slate-50 flex items-center justify-center text-slate-900 font-bold">Loading...</div>;
   }
 
-  // Prevent flash of protected content before redirect
-  if (!user && pathname.startsWith('/dashboard')) {
+  if (status === "unauthenticated" && pathname.startsWith('/dashboard')) {
     return null;
   }
 
   return <>{children}</>;
+}
+
+export function AuthProvider({ children }: { children: React.ReactNode }) {
+  return (
+    <SessionProvider>
+      <AuthSync>
+        {children}
+      </AuthSync>
+    </SessionProvider>
+  );
 }
