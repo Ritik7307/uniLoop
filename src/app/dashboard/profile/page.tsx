@@ -30,14 +30,10 @@ export default function ProfilePage() {
     setErrorMsg("");
 
     try {
-      const token = localStorage.getItem('token');
-      if (!token) throw new Error("Authentication error. Please login again.");
-
-      const res = await fetch('/api/auth/me', {
+      const res = await fetch('/api/profile', {
         method: 'PUT',
         headers: { 
-          'Content-Type': 'application/json',
-          'Authorization': `Bearer ${token}`
+          'Content-Type': 'application/json'
         },
         body: JSON.stringify({ name, department, year, hostel })
       });
