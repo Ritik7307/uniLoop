@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, Suspense, useRef } from "react";
-import { Send, Image as ImageIcon, CheckCircle2, ShieldAlert, ArrowLeft, Loader2, X, MessageCircle } from "lucide-react";
+import { Send, Image as ImageIcon, CheckCircle2, ShieldAlert, ArrowLeft, Loader2, X, MessageCircle, MoreVertical, Trash2, UserX } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { useSearchParams, useRouter } from "next/navigation";
 import imageCompression from 'browser-image-compression';
@@ -29,6 +29,7 @@ function ChatContent() {
   const [msgInput, setMsgInput] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const [isMobileListVisible, setIsMobileListVisible] = useState(true);
+  const [isMenuOpen, setIsMenuOpen] = useState(false);
 
   const messagesEndRef = useRef<HTMLDivElement>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -189,6 +190,51 @@ function ChatContent() {
   const selectChat = (chat: any) => {
     setActiveChat(chat);
     setIsMobileListVisible(false);
+    setIsMenuOpen(false);
+  };
+
+  const handleDeleteChat = async () => {
+    if (!activeChat || !user) return;
+    if (!confirm("Are you sure you want to delete this chat? It will be hidden until a new message arrives.")) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      await fetch(`/api/chats/${activeChat.id}/delete`, {
+        method: 'POST',
+        headers: { 'Authorization': `Bearer ${token}` }
+      });
+      setActiveChat(null);
+      setIsMenuOpen(false);
+      fetchChats();
+    } catch (err) {
+      console.error(err);
+      alert("Failed to delete chat.");
+    }
+  };
+
+  const handleBlockUser = async () => {
+    if (!activeChat || !user) return;
+    const targetUserId = activeChat.buyerId === user.uid ? activeChat.sellerId : activeChat.buyerId;
+    if (!confirm("Are you sure you want to block this user? They will not be able to message you.")) return;
+
+    try {
+      const token = localStorage.getItem('token');
+      const res = await fetch(`/api/users/block`, {
+        method: 'POST',
+        headers: { 
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}` 
+        },
+        body: JSON.stringify({ targetUserId })
+      });
+      if (res.ok) {
+        alert("User blocked successfully.");
+        setIsMenuOpen(false);
+      }
+    } catch (err) {
+      console.error(err);
+      alert("Failed to block user.");
+    }
   };
 
   if (!user) return <div className="p-10 text-slate-700 bg-slate-50 min-h-screen text-center font-bold">Please login to access chats.</div>;
@@ -252,14 +298,41 @@ function ChatContent() {
                       {activeChat.buyerId === user.uid ? "Seller" : activeChat.buyerName}
                       <CheckCircle2 size={16} className="text-brand" />
                     </h2>
-                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1">
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1 mt-0.5">
+                      {activeChat.buyerId === user.uid ? activeChat.sellerEmail : activeChat.buyerEmail}
+                    </p>
+                    <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1 mt-0.5">
                       Discussing <span className="text-slate-900">{activeChat.productName}</span>
                     </p>
                   </div>
                 </div>
-                <button className="p-2.5 text-slate-400 hover:text-red-500 hover:bg-red-50 rounded-xl transition-colors shadow-sm border border-transparent hover:border-red-100" title="Report/Block User">
-                  <ShieldAlert size={20} />
-                </button>
+                <div className="relative">
+                  <button 
+                    onClick={() => setIsMenuOpen(!isMenuOpen)}
+                    className="p-2.5 text-slate-400 hover:text-slate-900 hover:bg-slate-100 rounded-xl transition-colors shadow-sm border border-transparent"
+                  >
+                    <MoreVertical size={20} />
+                  </button>
+
+                  {isMenuOpen && (
+                    <div className="absolute right-0 mt-2 w-48 bg-white border border-slate-200 rounded-xl shadow-lg z-50 overflow-hidden">
+                      <button 
+                        onClick={handleDeleteChat}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left font-medium border-b border-slate-100"
+                      >
+                        <Trash2 size={16} />
+                        Delete Chat
+                      </button>
+                      <button 
+                        onClick={handleBlockUser}
+                        className="w-full flex items-center gap-2 px-4 py-3 text-sm text-red-600 hover:bg-red-50 transition-colors text-left font-medium"
+                      >
+                        <UserX size={16} />
+                        Block User
+                      </button>
+                    </div>
+                  )}
+                </div>
               </div>
 
               {/* Messages Thread */}

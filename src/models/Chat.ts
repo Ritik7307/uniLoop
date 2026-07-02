@@ -16,6 +16,7 @@ export interface IChat extends Document {
   productName: string;
   lastMessage: string;
   lastMessageTime: Date;
+  deletedBy: string[];
   messages: IMessage[];
 }
 
@@ -35,6 +36,7 @@ const ChatSchema: Schema = new Schema({
   productName: { type: String, required: true },
   lastMessage: { type: String, default: "" },
   lastMessageTime: { type: Date, default: Date.now },
+  deletedBy: { type: [String], default: [] },
   messages: [MessageSchema]
 });
 

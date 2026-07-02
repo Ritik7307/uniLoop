@@ -1,17 +1,26 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Product } from '@/models/Product';
+import { User } from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 
 export async function GET(req: Request, { params }: { params: Promise<{ id: string }> }) {
   try {
     await dbConnect();
     const id = (await params).id;
-    const product = await Product.findById(id);
+    const product = await Product.findById(id).lean();
     if (!product) {
       return NextResponse.json({ error: 'Product not found' }, { status: 404 });
     }
-    return NextResponse.json({ product });
+    
+    const seller = await User.findById(product.sellerId).select('email');
+    
+    return NextResponse.json({ 
+      product: {
+        ...product,
+        sellerEmail: seller?.email
+      } 
+    });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

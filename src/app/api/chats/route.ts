@@ -1,6 +1,7 @@
 import { NextResponse } from 'next/server';
 import dbConnect from '@/lib/mongodb';
 import { Chat } from '@/models/Chat';
+import { User } from '@/models/User';
 import { verifyToken } from '@/lib/auth';
 
 export async function GET(req: Request) {
@@ -24,10 +25,21 @@ export async function GET(req: Request) {
       $or: [
         { buyerId: decoded.userId },
         { sellerId: decoded.userId }
-      ]
-    }).sort({ lastMessageTime: -1 });
+      ],
+      deletedBy: { $ne: decoded.userId }
+    }).sort({ lastMessageTime: -1 }).lean();
     
-    return NextResponse.json({ chats });
+    const enrichedChats = await Promise.all(chats.map(async (chat) => {
+      const buyer = await User.findById(chat.buyerId).select('email');
+      const seller = await User.findById(chat.sellerId).select('email');
+      return {
+        ...chat,
+        buyerEmail: buyer?.email,
+        sellerEmail: seller?.email
+      };
+    }));
+    
+    return NextResponse.json({ chats: enrichedChats });
   } catch (error: any) {
     return NextResponse.json({ error: error.message }, { status: 500 });
   }

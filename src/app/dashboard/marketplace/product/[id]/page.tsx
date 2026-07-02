@@ -205,7 +205,8 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
                       <p className="text-sm font-bold text-gray-900 flex items-center gap-1.5">
                         {product.sellerName} {isOwner && "(You)"} <ShieldCheck size={16} className="text-blue-600" />
                       </p>
-                      <p className="text-xs text-gray-500">Verified Student</p>
+                      <p className="text-xs text-gray-500 font-medium">{product.sellerEmail}</p>
+                      <p className="text-xs text-gray-400">Verified Student</p>
                     </div>
                   </div>
                 </div>

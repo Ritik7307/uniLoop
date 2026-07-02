@@ -10,6 +10,7 @@ export interface IUser extends Document {
   hostel: string;
   walletBalance: number;
   monthlyBudget: number;
+  blockedUsers: string[];
   createdAt: Date;
 }
 
@@ -23,6 +24,7 @@ const UserSchema: Schema = new Schema({
   hostel: { type: String, default: "" },
   walletBalance: { type: Number, default: 0 },
   monthlyBudget: { type: Number, default: 5000 },
+  blockedUsers: { type: [String], default: [] },
   createdAt: { type: Date, default: Date.now },
 });
 

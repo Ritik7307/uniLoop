@@ -16,6 +16,7 @@ export default function AuthPage() {
   // Profile state
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
+  const [year, setYear] = useState("");
   const [hostel, setHostel] = useState("");
 
   const router = useRouter();
@@ -49,7 +50,7 @@ export default function AuthPage() {
         body: JSON.stringify({
           name,
           department,
-          year: "1st Year",
+          year,
           hostel,
         })
       });
@@ -185,6 +186,17 @@ export default function AuthPage() {
                       <option value="PhD - Computer Science">Computer Science and Engineering</option>
                       <option value="PhD - Management">Management Studies</option>
                     </optgroup>
+                  </select>
+                </motion.div>
+                <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.25 }} className="relative">
+                  <User className="absolute left-3 top-3.5 text-slate-400" size={20} />
+                  <select required value={year} onChange={e => setYear(e.target.value)} className="w-full bg-slate-50 text-slate-900 border border-slate-200 rounded-xl py-3 pl-10 pr-4 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm appearance-none">
+                    <option value="" disabled>Select Year</option>
+                    <option value="1st Year">1st Year</option>
+                    <option value="2nd Year">2nd Year</option>
+                    <option value="3rd Year">3rd Year</option>
+                    <option value="4th Year">4th Year</option>
+                    <option value="M.Tech/PhD">M.Tech/PhD</option>
                   </select>
                 </motion.div>
                 <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }} className="relative">
