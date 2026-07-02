@@ -162,7 +162,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
 
               <div className="mb-6">
                 <span className="text-3xl font-extrabold text-gray-900">
-                  {product.listingType === 'sale' || !product.listingType ? `₹${product.price}` : product.listingType === 'service' ? `₹${product.price} / hr` : 'Reward Negotiable'}
+                  {product.listingType === 'sale' || !product.listingType ? `₹${product.price}` : 'Reward Negotiable'}
                 </span>
                 {product.listingType === 'lost' && <span className="ml-3 px-2 py-1 bg-red-100 text-red-700 rounded text-xs font-bold uppercase">Lost Item</span>}
                 {product.listingType === 'found' && <span className="ml-3 px-2 py-1 bg-emerald-100 text-emerald-700 rounded text-xs font-bold uppercase">Found Item</span>}

@@ -46,7 +46,7 @@ export default function MarketplacePage() {
     let matchViewMode = false;
     if (viewMode === "sale") matchViewMode = lType === "sale" && p.status !== "sold";
     if (viewMode === "lost_found") matchViewMode = (lType === "lost" || lType === "found") && p.status !== "sold";
-    if (viewMode === "gigs") matchViewMode = lType === "service" && p.status !== "sold";
+
     if (viewMode === "sold") matchViewMode = p.status === "sold";
 
     return matchCategory && matchSearch && matchViewMode;
@@ -75,7 +75,6 @@ export default function MarketplacePage() {
             {[
               { id: "sale", label: "For Sale" },
               { id: "lost_found", label: "Lost & Found" },
-              { id: "gigs", label: "Gigs & Services" },
               { id: "sold", label: "Sold Items" }
             ].map(tab => (
               <button
@@ -175,9 +174,7 @@ export default function MarketplacePage() {
                       {product.status !== 'sold' && product.listingType === 'found' && (
                         <div className="px-2.5 py-1 bg-emerald-500 text-white rounded-md text-[10px] font-bold tracking-wider shadow-sm">FOUND</div>
                       )}
-                      {product.status !== 'sold' && product.listingType === 'service' && (
-                        <div className="px-2.5 py-1 bg-brand text-white rounded-md text-[10px] font-bold tracking-wider shadow-sm">SERVICE</div>
-                      )}
+
                     </div>
                     
                     {product.status !== 'sold' && (
@@ -196,7 +193,7 @@ export default function MarketplacePage() {
                     
                     <div className="mt-auto pt-4 flex items-end justify-between">
                       <div className="font-extrabold text-xl text-slate-900 tracking-tight">
-                        {product.listingType === 'sale' ? `₹${product.price}` : product.listingType === 'service' ? `₹${product.price}/hr` : 'Reward info'}
+                        {product.listingType === 'sale' ? `₹${product.price}` : 'Reward info'}
                       </div>
                       <div className="flex items-center gap-1.5 text-xs font-bold text-slate-500">
                         <MapPin size={14} /> {product.hostel}

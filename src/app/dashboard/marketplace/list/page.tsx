@@ -144,8 +144,7 @@ export default function ListProductPage() {
               {[
                 { id: "sale", label: "For Sale" },
                 { id: "lost", label: "Lost Item" },
-                { id: "found", label: "Found Item" },
-                { id: "service", label: "Service / Gig" }
+                { id: "found", label: "Found Item" }
               ].map(type => (
                 <button
                   key={type.id}
@@ -207,14 +206,14 @@ export default function ListProductPage() {
             
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1.5">
-                {listingType === 'sale' ? 'Title' : listingType === 'service' ? 'Service Title' : 'Item Name'}
+                {listingType === 'sale' ? 'Title' : 'Item Name'}
               </label>
               <input 
                 type="text" 
                 required 
                 value={title} 
                 onChange={e => setTitle(e.target.value)} 
-                placeholder={listingType === 'sale' ? "e.g., Engineering Graphics Drafter" : "e.g., Blue Water Bottle"} 
+                placeholder={listingType === 'sale' ? "e.g., Used iPhone 12" : "e.g., Blue Water Bottle"} 
                 className="w-full px-4 py-2.5 bg-white border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-shadow text-gray-900 text-sm"
               />
             </div>
