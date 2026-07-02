@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { WalkthroughPlayer } from "@/components/video/WalkthroughPlayer";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag, MessageSquare, ShieldCheck, HeartHandshake, Users, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ShoppingBag, MessageSquare, ShieldCheck, HeartHandshake, Users, CheckCircle2, Laptop } from "lucide-react";
 
 export default function LandingPage() {
   const [stats, setStats] = useState({ users: 0, products: 0 });
@@ -133,7 +133,7 @@ export default function LandingPage() {
             <p className="text-xl text-slate-500 max-w-2xl mx-auto">A simple, safe space built just for RGIPT students.</p>
           </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 relative z-10">
             <motion.div 
               initial={{ opacity: 0, y: 30 }}
               whileInView={{ opacity: 1, y: 0 }}
@@ -171,6 +171,19 @@ export default function LandingPage() {
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Safe & Verified</h3>
               <p className="text-slate-600 leading-relaxed font-medium">Only real RGIPT students allowed. We verify everyone using official college emails. Zero scammers.</p>
+            </motion.div>
+
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: 0.4 }}
+              className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
+              <div className="p-4 rounded-2xl bg-purple-50 text-purple-500 group-hover:bg-purple-500 group-hover:text-white transition-all duration-300 shadow-sm border border-purple-100 group-hover:border-purple-500 group-hover:shadow-purple-500/20">
+                <Laptop size={28} />
+              </div>
+              <h3 className="text-2xl font-bold text-slate-900">Project Showcase</h3>
+              <p className="text-slate-600 leading-relaxed font-medium">Share projects, discover innovative work, and collaborate with fellow students.</p>
             </motion.div>
           </div>
         </div>
