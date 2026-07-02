@@ -48,7 +48,8 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         
         if (res.ok) {
           const prodData = data.product;
-          if (prodData.sellerId !== user?.uid) {
+          const userId = (user as any)?.id || user?.uid;
+          if (prodData.sellerId !== userId && prodData.sellerName !== user?.name) {
             alert("You are not authorized to edit this listing.");
             router.push("/dashboard/marketplace");
             return;
@@ -66,10 +67,10 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         setIsFetching(false);
       }
     };
-    if (user?.uid) {
+    if (user) {
       fetchProduct();
     }
-  }, [productId, user?.uid, router]);
+  }, [productId, user, router]);
 
   const handleImageChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files) {

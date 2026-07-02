@@ -1,6 +1,7 @@
+
 "use client";
 
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import { Clock, Package, CheckCircle, Tag } from "lucide-react";
 import { useStore } from "@/store/useStore";
 
@@ -8,12 +9,46 @@ export default function UserHistoryPage() {
   const { user } = useStore();
   const [activeTab, setActiveTab] = useState<"posted" | "sold" | "bought">("posted");
 
-  // Data will be fetched from database
-  const historyData = {
+  const [historyData, setHistoryData] = useState<any>({
     posted: [],
     sold: [],
     bought: []
-  };
+  });
+  const [isLoading, setIsLoading] = useState(true);
+
+  useEffect(() => {
+    if (!user) return;
+
+    const fetchHistory = async () => {
+      try {
+        const res = await fetch('/api/products');
+        const data = await res.json();
+
+        if (res.ok) {
+          const formatItem = (p: any) => ({
+            id: p._id,
+            title: p.title,
+            price: p.price,
+            date: new Date(p.createdAt).toLocaleDateString(),
+            status: p.status
+          });
+
+          const userId = (user as any).id || (user as any).uid || user.email; // Fallbacks
+
+          const posted = data.products.filter((p: any) => p.sellerId === userId || p.sellerName === user.name).map(formatItem);
+          const sold = data.products.filter((p: any) => (p.sellerId === userId || p.sellerName === user.name) && p.status === 'sold').map(formatItem);
+
+          setHistoryData({ posted, sold, bought: [] });
+        }
+      } catch (err) {
+        console.error("Error fetching history:", err);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchHistory();
+  }, [user]);
 
   const currentList = historyData[activeTab];
 
@@ -27,19 +62,19 @@ export default function UserHistoryPage() {
       <div className="bg-white rounded-3xl shadow-sm border border-slate-200 overflow-hidden">
         {/* Tabs */}
         <div className="flex border-b border-slate-200 overflow-x-auto whitespace-nowrap scrollbar-hide">
-          <button 
+          <button
             onClick={() => setActiveTab("posted")}
             className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "posted" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
             Posted Items
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("sold")}
             className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "sold" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
             Items Sold
           </button>
-          <button 
+          <button
             onClick={() => setActiveTab("bought")}
             className={`flex-1 min-w-[120px] py-4 px-4 text-sm font-bold uppercase tracking-wide transition-colors ${activeTab === "bought" ? "text-brand border-b-2 border-brand" : "text-slate-500 hover:bg-slate-50"}`}
           >
@@ -48,8 +83,13 @@ export default function UserHistoryPage() {
         </div>
 
         {/* List */}
-        <div className="p-6">
-          {currentList.length === 0 ? (
+        <div className="p-6 min-h-[400px]">
+          {isLoading ? (
+            <div className="flex flex-col justify-center items-center h-full text-slate-400 py-20">
+              <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand mb-4"></div>
+              <p className="font-medium">Loading history...</p>
+            </div>
+          ) : currentList.length === 0 ? (
             <div className="text-center py-16">
               <Package size={48} className="mx-auto text-slate-300 mb-4" />
               <h3 className="text-lg font-bold text-slate-900 mb-1">No items found</h3>
@@ -85,3 +125,4 @@ export default function UserHistoryPage() {
     </div>
   );
 }
+
