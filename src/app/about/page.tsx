@@ -3,8 +3,10 @@
 import Link from "next/link";
 import { ArrowLeft, Heart, Users, Target, Shield } from "lucide-react";
 import { motion } from "framer-motion";
+import { useStore } from "@/store/useStore";
 
 export default function AboutPage() {
+  const { user } = useStore();
   return (
     <div className="min-h-screen bg-slate-50 pt-32 pb-20 px-6 relative overflow-hidden">
       {/* Background grid */}
@@ -16,7 +18,7 @@ export default function AboutPage() {
         </Link>
 
         <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ duration: 0.6 }}>
-          <h1 className="text-5xl md:text-7xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
+          <h1 className="text-4xl md:text-5xl font-extrabold tracking-tight text-slate-900 mb-6 leading-tight">
             About <span className="text-brand">UniLoop</span>
           </h1>
           <p className="text-xl text-slate-600 leading-relaxed font-medium mb-12">
@@ -66,13 +68,15 @@ export default function AboutPage() {
           </motion.div>
         </div>
 
-        <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.6 }} className="text-center">
-          <Link href="/auth">
-            <button className="px-8 py-4 bg-brand text-white font-bold rounded-xl hover:bg-brand-dark transition-colors shadow-sm">
-              Join the Community
-            </button>
-          </Link>
-        </motion.div>
+        {!user && (
+          <motion.div initial={{ opacity: 0 }} animate={{ opacity: 1 }} transition={{ duration: 1, delay: 0.6 }} className="text-center">
+            <Link href="/auth">
+              <button className="px-8 py-4 bg-brand text-white font-bold rounded-xl hover:bg-brand-dark transition-colors shadow-sm">
+                Join the Community
+              </button>
+            </Link>
+          </motion.div>
+        )}
       </div>
     </div>
   );
