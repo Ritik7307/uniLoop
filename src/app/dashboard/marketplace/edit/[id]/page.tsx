@@ -48,7 +48,7 @@ export default function EditProductPage({ params }: { params: Promise<{ id: stri
         
         if (res.ok) {
           const prodData = data.product;
-          const userId = (user as any)?.id || user?.uid;
+          const userId = (user as any)?.id || user?.id;
           if (prodData.sellerId !== userId && prodData.sellerName !== user?.name) {
             alert("You are not authorized to edit this listing.");
             router.push("/dashboard/marketplace");

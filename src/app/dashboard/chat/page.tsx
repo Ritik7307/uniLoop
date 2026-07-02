@@ -128,7 +128,7 @@ function ChatContent() {
     setMsgInput("");
 
     // Optimistic UI Update
-    const optimisticMsg = { id: Date.now().toString(), text, type: "text", senderId: user.uid, timestamp: new Date() };
+    const optimisticMsg = { id: Date.now().toString(), text, type: "text", senderId: user.id, timestamp: new Date() };
     setMessages(prev => [...prev, optimisticMsg]);
 
     try {
@@ -157,7 +157,7 @@ function ChatContent() {
       const base64String = await blobToBase64(compressedFile);
 
       // Optimistic Update
-      const optimisticMsg = { id: Date.now().toString(), imageUrl: base64String, type: "image", senderId: user.uid, timestamp: new Date() };
+      const optimisticMsg = { id: Date.now().toString(), imageUrl: base64String, type: "image", senderId: user.id, timestamp: new Date() };
       setMessages(prev => [...prev, optimisticMsg]);
 
       await fetch(`/api/chats/${activeChat.id}/messages`, {
@@ -202,7 +202,7 @@ function ChatContent() {
 
   const handleBlockUser = async () => {
     if (!activeChat || !user) return;
-    const targetUserId = activeChat.buyerId === user.uid ? activeChat.sellerId : activeChat.buyerId;
+    const targetUserId = activeChat.buyerId === user.id ? activeChat.sellerId : activeChat.buyerId;
     if (!confirm("Are you sure you want to block this user? They will not be able to message you.")) return;
 
     try {
@@ -236,7 +236,7 @@ function ChatContent() {
           </div>
           <div className="flex-1 overflow-y-auto bg-white scrollbar-hide">
             {chats.map(chat => {
-              const isMeBuyer = chat.buyerId === user.uid;
+              const isMeBuyer = chat.buyerId === user.id;
               const displayName = isMeBuyer ? "Seller" : chat.buyerName;
               const isActive = activeChat?.id === chat.id;
 
@@ -276,16 +276,16 @@ function ChatContent() {
                     <ArrowLeft size={20} />
                   </button>
                   <div className="w-12 h-12 rounded-full bg-brand/10 flex items-center justify-center text-lg font-extrabold text-brand relative">
-                    {(activeChat.buyerId === user.uid ? "S" : activeChat.buyerName?.charAt(0)) || "U"}
+                    {(activeChat.buyerId === user.id ? "S" : activeChat.buyerName?.charAt(0)) || "U"}
                     <span className="absolute bottom-0 right-0 w-3 h-3 bg-emerald-500 border-2 border-white rounded-full"></span>
                   </div>
                   <div>
                     <h2 className="font-extrabold text-slate-900 flex items-center gap-1.5 text-lg tracking-tight">
-                      {activeChat.buyerId === user.uid ? "Seller" : activeChat.buyerName}
+                      {activeChat.buyerId === user.id ? "Seller" : activeChat.buyerName}
                       <CheckCircle2 size={16} className="text-brand" />
                     </h2>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1 mt-0.5">
-                      {activeChat.buyerId === user.uid ? activeChat.sellerEmail : activeChat.buyerEmail}
+                      {activeChat.buyerId === user.id ? activeChat.sellerEmail : activeChat.buyerEmail}
                     </p>
                     <p className="text-xs font-bold text-slate-500 uppercase tracking-wide flex items-center gap-1 mt-0.5">
                       Discussing <span className="text-slate-900">{activeChat.productName}</span>
@@ -330,7 +330,7 @@ function ChatContent() {
                   </div>
                 )}
                 {messages.map((msg, idx) => {
-                  const isMe = msg.senderId === user.uid;
+                  const isMe = msg.senderId === user.id;
                   const showTimestamp = idx === messages.length - 1 || messages[idx + 1]?.senderId !== msg.senderId;
                   const date = msg.timestamp ? new Date(msg.timestamp) : null;
                   const timeStr = date ? date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }) : '';

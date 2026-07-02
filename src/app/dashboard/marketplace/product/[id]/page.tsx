@@ -57,7 +57,7 @@ export default function ProductDetailPage({ params }: { params: Promise<{ id: st
   const dateObj = product.createdAt ? new Date(product.createdAt) : new Date();
   const postedAt = dateObj.toLocaleDateString();
 
-  const isOwner = user && ((user as any).id === product.sellerId || user.uid === product.sellerId || user.name === product.sellerName);
+  const isOwner = user && ((user as any).id === product.sellerId || user.id === product.sellerId || user.name === product.sellerName);
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this listing? This action cannot be undone.")) return;

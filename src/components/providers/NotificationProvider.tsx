@@ -34,13 +34,13 @@ export default function NotificationProvider({ children }: { children: React.Rea
             const msgTime = new Date(lastMsg.timestamp).getTime();
             
             // Check if message is newer than our last check and NOT sent by us
-            if (msgTime > lastCheck && lastMsg.senderId !== user.uid) {
+            if (msgTime > lastCheck && lastMsg.senderId !== user.id) {
               hasNew = true;
               if (msgTime > newestMessageTime) {
                 newestMessageTime = msgTime;
               }
               
-              const senderName = chat.buyerId === user.uid ? chat.sellerName || "Seller" : chat.buyerName;
+              const senderName = chat.buyerId === user.id ? chat.sellerName || "Seller" : chat.buyerName;
               
               // In-app Toast Notification
               toast.success(`New message from ${senderName}`, {

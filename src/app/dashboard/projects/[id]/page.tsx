@@ -52,7 +52,7 @@ export default function ProjectDetailPage({ params }: { params: Promise<{ id: st
     );
   }
 
-  const isOwner = user && ((user as any).id === project.authorId || user.uid === project.authorId);
+  const isOwner = user && ((user as any).id === project.authorId || user.id === project.authorId);
 
   const handleDelete = async () => {
     if (!confirm("Are you sure you want to delete this project?")) return;
