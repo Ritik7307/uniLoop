@@ -3,16 +3,9 @@
 import { useEffect, useRef, useState } from "react";
 import Link from "next/link";
 import { motion, useScroll, useTransform } from "framer-motion";
-import gsap from "gsap";
-import { ScrollTrigger } from "gsap/ScrollTrigger";
-import { GlassCard } from "@/components/ui/GlassCard";
 import { WalkthroughPlayer } from "@/components/video/WalkthroughPlayer";
 import Image from "next/image";
-import { ArrowRight, ShoppingBag, MessageSquare, PieChart, ShieldCheck, HeartHandshake, Laptop, Book, Bike, Star, Users, CheckCircle2 } from "lucide-react";
-
-if (typeof window !== "undefined") {
-  gsap.registerPlugin(ScrollTrigger);
-}
+import { ArrowRight, ShoppingBag, MessageSquare, ShieldCheck, HeartHandshake, Users, CheckCircle2 } from "lucide-react";
 
 export default function LandingPage() {
   const [stats, setStats] = useState({ users: 0, products: 0 });
@@ -42,45 +35,11 @@ export default function LandingPage() {
   });
   const y = useTransform(scrollYProgress, [0, 1], ["0%", "50%"]);
 
-  useEffect(() => {
-    // GSAP Scroll Animations
-    const ctx = gsap.context(() => {
-      gsap.from(".feature-card", {
-        scrollTrigger: {
-          trigger: ".features-section",
-          start: "top 70%",
-        },
-        y: 30,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.1,
-        ease: "power2.out",
-      });
-
-      gsap.from(".timeline-step", {
-        scrollTrigger: {
-          trigger: ".timeline-section",
-          start: "top 75%",
-        },
-        x: -20,
-        opacity: 0,
-        duration: 0.6,
-        stagger: 0.2,
-        ease: "power2.out",
-      });
-
-
-
-    }, containerRef);
-
-    return () => ctx.revert();
-  }, []);
-
   return (
     <div ref={containerRef} className="relative w-full overflow-hidden">
       
       {/* Hero Section */}
-      <section className="relative flex flex-col items-center justify-center pt-24 pb-16 px-6">
+      <section className="relative flex flex-col items-center justify-center pt-32 md:pt-40 pb-16 px-6">
         <div className="absolute inset-0 bg-white pointer-events-none"></div>
         <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40"></div>
         
@@ -175,29 +134,44 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-            <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: 0.1 }}
+              className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm border border-blue-100 group-hover:border-blue-500 group-hover:shadow-blue-500/20">
                 <ShoppingBag size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Thrift & Trade</h3>
               <p className="text-slate-600 leading-relaxed font-medium">Find textbooks, bikes, and dorm essentials from people you actually know. Save money instantly.</p>
-            </div>
+            </motion.div>
 
-            <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
+            <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: 0.2 }}
+              className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-brand-light/20 text-brand group-hover:bg-brand group-hover:text-white transition-all duration-300 shadow-sm border border-brand-light/30 group-hover:border-brand group-hover:shadow-brand/20">
                 <MessageSquare size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Quick Chats</h3>
               <p className="text-slate-600 leading-relaxed font-medium">No more awkward DMs. Chat securely in-app and lock in your deals lightning fast.</p>
-            </div>
+            </motion.div>
 
-           <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
+           <motion.div 
+              initial={{ opacity: 0, y: 30 }}
+              whileInView={{ opacity: 1, y: 0 }}
+              viewport={{ once: true, margin: "-50px" }}
+              transition={{ duration: 0.5, delay: 0.3 }}
+              className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100 group-hover:border-emerald-500 group-hover:shadow-emerald-500/20">
                 <ShieldCheck size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Safe & Verified</h3>
               <p className="text-slate-600 leading-relaxed font-medium">Only real RGIPT students allowed. We verify everyone using official college emails. Zero scammers.</p>
-            </div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -213,7 +187,12 @@ export default function LandingPage() {
               { step: "02", title: "List or Browse", desc: "Snap a pic of what you're selling, or scroll through what others have." },
               { step: "03", title: "Chat & Meet", desc: "Ping the buyer/seller and agree to meet up near the hostel." }
             ].map((item, i) => (
-              <div key={i} className="timeline-step relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
+              <motion.div 
+                initial={{ opacity: 0, x: -20 }}
+                whileInView={{ opacity: 1, x: 0 }}
+                viewport={{ once: true, margin: "-50px" }}
+                transition={{ duration: 0.5, delay: i * 0.2 }}
+                key={i} className="timeline-step relative flex items-center justify-between md:justify-normal md:odd:flex-row-reverse group">
                 <div className="flex items-center justify-center w-12 h-12 rounded-full border-4 border-white bg-blue-600 text-white font-bold text-sm shadow-md shrink-0 md:order-1 md:group-odd:-translate-x-1/2 md:group-even:translate-x-1/2 z-10">
                   {item.step}
                 </div>
@@ -234,7 +213,7 @@ export default function LandingPage() {
                   <h3 className="font-bold text-xl mb-2 text-gray-900">{item.title}</h3>
                   <p className="text-gray-500 leading-relaxed">{item.desc}</p>
                 </div>
-              </div>
+              </motion.div>
             ))}
 
           </div>
