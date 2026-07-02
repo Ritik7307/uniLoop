@@ -18,14 +18,13 @@ export async function GET(req: Request) {
       return NextResponse.json({ error: 'User not found' }, { status: 404 });
     }
 
-    // Find chats where user is buyer or seller
     const chats = await Chat.find({
       $or: [
         { buyerId: user._id },
         { sellerId: user._id }
       ],
       deletedBy: { $ne: user._id }
-    }).sort({ lastMessageTime: -1 }).lean();
+    } as any).sort({ lastMessageTime: -1 }).lean();
     
     const enrichedChats = await Promise.all(chats.map(async (chat) => {
       const buyer = await User.findById(chat.buyerId).select('email');
@@ -66,7 +65,7 @@ export async function POST(req: Request) {
         { buyerId: user._id, sellerId: body.sellerId },
         { sellerId: user._id, buyerId: body.sellerId }
       ]
-    });
+    } as any);
 
     if (!chat) {
       chat = await Chat.create({
