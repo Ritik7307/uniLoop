@@ -88,7 +88,7 @@ export default function AuthPage() {
             >
               <div className="text-center mb-8">
                 <h2 className="text-3xl font-extrabold mb-2 tracking-tight text-slate-900">Welcome to UniLoop</h2>
-                <p className="text-slate-500 text-sm font-medium">Sign in with your RGIPT Google Account</p>
+                <p className="text-brand font-bold bg-brand/10 px-4 py-1.5 rounded-full inline-block text-sm">Sign in with your RGIPT Google Account</p>
               </div>
 
               {errorMsg && (

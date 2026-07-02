@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import Link from "next/link";
-import { Search, Filter, Plus, Heart, MapPin, Loader2, Tag } from "lucide-react";
+import { Search, Plus, Heart, MapPin, Loader2, Tag } from "lucide-react";
 import { useStore } from "@/store/useStore";
 import { motion } from "framer-motion";
 
@@ -110,9 +110,7 @@ export default function MarketplacePage() {
               className="w-full bg-white/80 border border-slate-200 py-3 pl-10 pr-4 rounded-xl text-sm text-slate-900 placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-brand focus:border-brand transition-all shadow-sm"
             />
           </div>
-          <button className="bg-white/80 border border-slate-200 px-5 py-3 rounded-xl text-sm font-bold text-slate-700 hover:bg-slate-50 transition-colors flex items-center gap-2 shrink-0 shadow-sm">
-            <Filter size={18} className="text-slate-500" /> Filters
-          </button>
+
         </div>
 
         {/* Categories */}

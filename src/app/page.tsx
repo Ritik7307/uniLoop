@@ -6,6 +6,7 @@ import { motion, useScroll, useTransform } from "framer-motion";
 import gsap from "gsap";
 import { ScrollTrigger } from "gsap/ScrollTrigger";
 import { GlassCard } from "@/components/ui/GlassCard";
+import { WalkthroughPlayer } from "@/components/video/WalkthroughPlayer";
 import Image from "next/image";
 import { ArrowRight, ShoppingBag, MessageSquare, PieChart, ShieldCheck, HeartHandshake, Laptop, Book, Bike, Star, Users, CheckCircle2 } from "lucide-react";
 
@@ -49,11 +50,11 @@ export default function LandingPage() {
           trigger: ".features-section",
           start: "top 70%",
         },
-        y: 100,
+        y: 30,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.2,
-        ease: "power3.out",
+        duration: 0.6,
+        stagger: 0.1,
+        ease: "power2.out",
       });
 
       gsap.from(".timeline-step", {
@@ -61,11 +62,11 @@ export default function LandingPage() {
           trigger: ".timeline-section",
           start: "top 75%",
         },
-        x: -50,
+        x: -20,
         opacity: 0,
-        duration: 0.8,
-        stagger: 0.3,
-        ease: "back.out(1.7)",
+        duration: 0.6,
+        stagger: 0.2,
+        ease: "power2.out",
       });
 
 
@@ -85,15 +86,15 @@ export default function LandingPage() {
         
         <div className="relative z-10 max-w-5xl mx-auto text-center">
           <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-slate-100 border border-slate-200 mb-8">
-            <span className="w-2 h-2 rounded-full bg-blue-600 animate-pulse" />
+            <span className="w-2 h-2 rounded-full bg-blue-600" />
             <span className="text-sm font-semibold text-gray-700 tracking-wide uppercase">Exclusive for RGIPT Students</span>
           </div>
 
           <motion.h1 
-            initial={{ opacity: 0, y: 40 }}
+            initial={{ opacity: 0, y: 15 }}
             animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 1, delay: 0.4 }}
-            className="text-6xl md:text-8xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900"
+            transition={{ duration: 0.8, delay: 0.2 }}
+            className="text-5xl md:text-6xl font-extrabold tracking-tight mb-6 leading-[1.1] text-slate-900"
           >
             Buy. Sell. Save. <br />
             <span className="text-brand">
@@ -153,6 +154,18 @@ export default function LandingPage() {
         </div>
       </section>
 
+      {/* Video Walkthrough Section */}
+      <section className="relative z-20 -mt-16 mb-24 px-6 w-full max-w-7xl mx-auto">
+        <motion.div
+          initial={{ opacity: 0, y: 40 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.8 }}
+        >
+          <WalkthroughPlayer />
+        </motion.div>
+      </section>
+
       {/* Features Section */}
       <section className="features-section relative py-32 px-6 bg-slate-50">
         <div className="max-w-7xl mx-auto">
@@ -162,29 +175,29 @@ export default function LandingPage() {
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-6 relative z-10">
-            <motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.2 }} className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 hover:shadow-xl hover:shadow-blue-500/5 transition-all cursor-default">
+            <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-blue-50 text-blue-500 group-hover:bg-blue-500 group-hover:text-white transition-all duration-300 shadow-sm border border-blue-100 group-hover:border-blue-500 group-hover:shadow-blue-500/20">
                 <ShoppingBag size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Thrift & Trade</h3>
               <p className="text-slate-600 leading-relaxed font-medium">Find textbooks, bikes, and dorm essentials from people you actually know. Save money instantly.</p>
-            </motion.div>
+            </div>
 
-            <motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.2 }} className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 hover:shadow-xl hover:shadow-brand/5 transition-all cursor-default">
+            <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-brand-light/20 text-brand group-hover:bg-brand group-hover:text-white transition-all duration-300 shadow-sm border border-brand-light/30 group-hover:border-brand group-hover:shadow-brand/20">
                 <MessageSquare size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Quick Chats</h3>
               <p className="text-slate-600 leading-relaxed font-medium">No more awkward DMs. Chat securely in-app and lock in your deals lightning fast.</p>
-            </motion.div>
+            </div>
 
-           <motion.div whileHover={{ y: -8, scale: 1.02 }} transition={{ duration: 0.2 }} className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 hover:shadow-xl hover:shadow-emerald-500/5 transition-all cursor-default">
+           <div className="feature-card flex flex-col items-start gap-4 group glass-panel rounded-3xl p-8 transition-all cursor-default">
               <div className="p-4 rounded-2xl bg-emerald-50 text-emerald-500 group-hover:bg-emerald-500 group-hover:text-white transition-all duration-300 shadow-sm border border-emerald-100 group-hover:border-emerald-500 group-hover:shadow-emerald-500/20">
                 <ShieldCheck size={28} />
               </div>
               <h3 className="text-2xl font-bold text-slate-900">Safe & Verified</h3>
               <p className="text-slate-600 leading-relaxed font-medium">Only real RGIPT students allowed. We verify everyone using official college emails. Zero scammers.</p>
-            </motion.div>
+            </div>
           </div>
         </div>
       </section>
