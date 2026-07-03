@@ -13,6 +13,13 @@ export default function NotificationProvider({ children }: { children: React.Rea
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
     }
+
+    // Register service worker for mobile notifications
+    if ("serviceWorker" in navigator) {
+      navigator.serviceWorker.register('/sw.js').catch((err) => {
+        console.error("Service Worker registration failed:", err);
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -51,10 +58,19 @@ export default function NotificationProvider({ children }: { children: React.Rea
 
               // Browser Notification
               if ("Notification" in window && Notification.permission === "granted") {
-                new Notification(`New message from ${senderName}`, {
-                  body: lastMsg.text || (lastMsg.type === 'image' ? "Sent an image" : "New message"),
-                  icon: '/favicon.ico'
-                });
+                if ("serviceWorker" in navigator) {
+                  navigator.serviceWorker.ready.then((registration) => {
+                    registration.showNotification(`New message from ${senderName}`, {
+                      body: lastMsg.text || (lastMsg.type === 'image' ? "Sent an image" : "New message"),
+                      icon: '/favicon.ico'
+                    });
+                  });
+                } else {
+                  new Notification(`New message from ${senderName}`, {
+                    body: lastMsg.text || (lastMsg.type === 'image' ? "Sent an image" : "New message"),
+                    icon: '/favicon.ico'
+                  });
+                }
               }
             }
           }
