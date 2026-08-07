@@ -11,10 +11,6 @@ export default function ProjectsPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [search, setSearch] = useState("");
 
-  useEffect(() => {
-    fetchProjects();
-  }, [search]);
-
   const fetchProjects = async () => {
     setIsLoading(true);
     try {
@@ -30,6 +26,11 @@ export default function ProjectsPage() {
       setIsLoading(false);
     }
   };
+
+  useEffect(() => {
+    fetchProjects();
+  // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [search]);
 
   return (
     <div className="min-h-screen bg-gray-50 p-6 md:p-8">

@@ -6,9 +6,11 @@ import toast, { Toaster } from "react-hot-toast";
 
 export default function NotificationProvider({ children }: { children: React.ReactNode }) {
   const { user } = useStore();
-  const [lastCheck, setLastCheck] = useState<number>(Date.now());
+  const [lastCheck, setLastCheck] = useState<number>(0);
 
   useEffect(() => {
+    setLastCheck(Date.now());
+
     // Request browser notification permission
     if ("Notification" in window && Notification.permission === "default") {
       Notification.requestPermission();
@@ -35,6 +37,7 @@ export default function NotificationProvider({ children }: { children: React.Rea
         let newestMessageTime = lastCheck;
         let hasNew = false;
         
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
         data.chats.forEach((chat: any) => {
           if (chat.messages && chat.messages.length > 0) {
             const lastMsg = chat.messages[chat.messages.length - 1];
