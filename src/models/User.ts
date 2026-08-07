@@ -11,6 +11,7 @@ export interface IUser extends Document {
   walletBalance: number;
   monthlyBudget: number;
   blockedUsers: string[];
+  role: string;
   createdAt: Date;
 }
 
@@ -25,6 +26,7 @@ const UserSchema: Schema = new Schema({
   walletBalance: { type: Number, default: 0 },
   monthlyBudget: { type: Number, default: 5000 },
   blockedUsers: { type: [String], default: [] },
+  role: { type: String, enum: ['user', 'admin'], default: 'user' },
   createdAt: { type: Date, default: Date.now },
 });
 
