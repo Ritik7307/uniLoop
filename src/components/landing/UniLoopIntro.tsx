@@ -58,7 +58,7 @@ export const UniLoopIntro = () => {
             viewport={{ once: true, margin: "-50px" }}
             transition={{ duration: 0.5, delay: idx * 0.1 }}
             whileHover={{ y: -5, scale: 1.02 }}
-            className={`p-8 md:p-10 rounded-[2rem] border ${feature.color} flex flex-col justify-between aspect-square md:aspect-auto md:min-h-[300px] transition-all duration-300`}
+            className={`p-8 md:p-10 rounded-[2rem] border ${feature.color} flex flex-col justify-between min-h-[200px] md:min-h-[300px] transition-all duration-300`}
           >
             <h3 className="text-2xl md:text-3xl font-bold tracking-tight mb-4">
               {feature.title}

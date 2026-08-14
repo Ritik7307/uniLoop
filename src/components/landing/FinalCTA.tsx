@@ -12,12 +12,12 @@ export const FinalCTA = () => {
         <motion.div
           animate={{ rotate: 360 }}
           transition={{ duration: 20, repeat: Infinity, ease: "linear" }}
-          className="w-[800px] h-[800px] md:w-[1200px] md:h-[1200px] border-[1px] md:border-[2px] border-[#F4A261]/40 rounded-full absolute"
+          className="w-[150vw] h-[150vw] sm:w-[800px] sm:h-[800px] md:w-[1200px] md:h-[1200px] border-[1px] md:border-[2px] border-[#F4A261]/40 rounded-full absolute"
         />
         <motion.div
           animate={{ rotate: -360 }}
           transition={{ duration: 25, repeat: Infinity, ease: "linear" }}
-          className="w-[600px] h-[600px] md:w-[900px] md:h-[900px] border-[1px] md:border-[2px] border-[#E76F51]/20 rounded-full absolute"
+          className="w-[120vw] h-[120vw] sm:w-[600px] sm:h-[600px] md:w-[900px] md:h-[900px] border-[1px] md:border-[2px] border-[#E76F51]/20 rounded-full absolute"
         />
       </div>
 
