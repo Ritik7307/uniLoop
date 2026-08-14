@@ -12,11 +12,12 @@ export const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
   const pathname = usePathname();
 
+  if (pathname === '/' || pathname?.startsWith('/auth')) return null;
+
   const navLinks = [
     { name: "Marketplace", href: "/dashboard/marketplace" },
-    { name: "Projects", href: "/dashboard/projects" },
+    { name: "Lost & Found", href: "/dashboard/lost-found" },
     { name: "Messages", href: "/dashboard/chat" },
-    { name: "About", href: "/about" },
     { name: "History", href: "/dashboard/history" },
   ];
 
@@ -38,38 +39,37 @@ export const Navbar = () => {
         {/* Logo */}
         <Link
           href="/"
-          className="flex items-center gap-2 text-2xl font-extrabold tracking-tight text-slate-900 hover:opacity-80 transition-opacity"
+          className="flex items-center gap-2 hover:opacity-80 transition-opacity"
         >
-          <div className="flex items-center justify-center w-8 h-8 bg-brand rounded-lg text-white">
-            <HeartHandshake size={20} strokeWidth={2.5} />
-          </div>
-          <span>UniLoop</span>
+          <img src="/images/logo.png" alt="UniLoop Logo" className="h-14 w-auto object-contain" />
         </Link>
 
         {/* Desktop Nav */}
-        <div className="hidden md:flex items-center gap-2">
-          {navLinks.map((link) => {
-            const isActive = pathname?.startsWith(link.href);
-            return (
-              <Link
-                key={link.name}
-                href={link.href}
-                className="relative px-5 py-2 rounded-full text-sm font-semibold transition-all group"
-              >
-                <span className={`relative z-10 ${isActive ? 'text-brand-dark' : 'text-slate-500 group-hover:text-slate-900'}`}>
-                  {link.name}
-                </span>
-                {isActive && (
-                  <motion.div
-                    layoutId="navbar-active"
-                    className="absolute inset-0 bg-brand-light/10 rounded-full"
-                    transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
-                  />
-                )}
-              </Link>
-            );
-          })}
-        </div>
+        {user && (
+          <div className="hidden md:flex items-center gap-2">
+            {navLinks.map((link) => {
+              const isActive = pathname?.startsWith(link.href);
+              return (
+                <Link
+                  key={link.name}
+                  href={link.href}
+                  className="relative px-5 py-2 rounded-full text-sm font-semibold transition-all group"
+                >
+                  <span className={`relative z-10 ${isActive ? 'text-brand-dark' : 'text-slate-500 group-hover:text-slate-900'}`}>
+                    {link.name}
+                  </span>
+                  {isActive && (
+                    <motion.div
+                      layoutId="navbar-active"
+                      className="absolute inset-0 bg-brand-light/10 rounded-full"
+                      transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
+                    />
+                  )}
+                </Link>
+              );
+            })}
+          </div>
+        )}
 
         {/* Right Side */}
         <div className="flex items-center gap-4">
@@ -97,13 +97,20 @@ export const Navbar = () => {
               </Link>
             </>
           ) : (
-            <Link href="/auth">
-              <button className="hidden md:flex items-center gap-2 px-6 py-2.5 rounded-full text-sm font-bold
-                bg-slate-900 text-white
-                hover:bg-brand-dark transition-colors shadow-lg hover:shadow-brand/20 hover:-translate-y-0.5">
-                Join UniLoop <ChevronRight size={16} />
-              </button>
-            </Link>
+            <div className="hidden md:flex items-center gap-4">
+              <Link
+                href="/auth"
+                className="text-sm font-semibold text-slate-700 hover:text-slate-900 transition-colors"
+              >
+                Login
+              </Link>
+              <Link
+                href="/auth"
+                className="px-6 py-2.5 rounded-full text-sm font-bold bg-[#17212B] text-white hover:bg-[#17212B]/90 transition-all hover:-translate-y-0.5 shadow-lg shadow-[#17212B]/20"
+              >
+                Sign Up
+              </Link>
+            </div>
           )}
 
           {/* Mobile Menu Button */}
@@ -127,7 +134,7 @@ export const Navbar = () => {
           transition={{ type: "spring", bounce: 0.3 }}
           className="fixed top-24 left-4 right-4 z-40 bg-white/95 backdrop-blur-3xl border border-slate-100 rounded-3xl shadow-2xl p-5 md:hidden flex flex-col gap-3"
         >
-          {navLinks.map((link) => (
+          {user && navLinks.map((link) => (
             <Link 
               key={link.name}
               href={link.href} 
@@ -146,9 +153,22 @@ export const Navbar = () => {
               <span className="font-bold text-slate-900 text-lg">{user.name}</span>
             </div>
           ) : (
-            <Link href="/auth" onClick={() => setIsOpen(false)} className="bg-slate-900 text-white text-center font-bold py-4 rounded-xl shadow-lg mt-2 flex items-center justify-center gap-2">
-              Join UniLoop <ChevronRight size={18} />
-            </Link>
+            <div className="flex flex-col gap-3 mt-2">
+              <Link 
+                href="/auth" 
+                onClick={() => setIsOpen(false)} 
+                className="w-full py-4 text-center rounded-xl border-2 border-[#17212B] text-[#17212B] font-bold text-lg"
+              >
+                Login
+              </Link>
+              <Link 
+                href="/auth" 
+                onClick={() => setIsOpen(false)} 
+                className="w-full py-4 text-center rounded-xl bg-[#17212B] text-white font-bold text-lg shadow-lg"
+              >
+                Sign Up
+              </Link>
+            </div>
           )}
         </motion.div>
       )}

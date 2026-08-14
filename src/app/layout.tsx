@@ -1,8 +1,8 @@
 import type { Metadata } from "next";
-import { Plus_Jakarta_Sans } from "next/font/google";
+import { Inter } from "next/font/google";
 import "./globals.css";
 
-const plusJakartaSans = Plus_Jakarta_Sans({ subsets: ["latin"] });
+const inter = Inter({ subsets: ["latin"] });
 import { Navbar } from "@/components/layout/Navbar";
 import { AuthProvider } from "@/components/providers/AuthProvider";
 import NotificationProvider from "@/components/providers/NotificationProvider";
@@ -19,10 +19,14 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
-      <body className={`${plusJakartaSans.className} antialiased selection:bg-blue-500/30 text-slate-900 bg-slate-50`}>
+      <body className={`${inter.className} antialiased selection:bg-[#F4A261]/50 text-[var(--color-uniloop-text)] bg-[var(--color-uniloop-bg)]`}>
         <AuthProvider>
           <NotificationProvider>
             <Navbar />
+            <div 
+              className="fixed inset-0 -z-10 bg-cover bg-center opacity-30 blur-md"
+              style={{ backgroundImage: "url('/images/signpost.png')" }}
+            />
             {children}
           </NotificationProvider>
         </AuthProvider>

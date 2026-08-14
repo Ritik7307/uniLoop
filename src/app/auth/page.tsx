@@ -2,8 +2,9 @@
 
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { ArrowRight, User, Building, MapPin, Loader2, CheckCircle2 } from "lucide-react";
+import { ArrowRight, ArrowLeft, User, Building, MapPin, Loader2, CheckCircle2 } from "lucide-react";
 import { useRouter } from "next/navigation";
+import Link from "next/link";
 import { useStore } from "@/store/useStore";
 import { signIn, useSession } from "next-auth/react";
 
@@ -75,6 +76,12 @@ export default function AuthPage() {
 
   return (
     <div className="min-h-screen flex items-center justify-center p-6 bg-slate-50 relative overflow-hidden">
+      {/* Back Button */}
+      <Link href="/" className="absolute top-6 left-6 sm:top-8 sm:left-8 flex items-center gap-2 text-slate-500 hover:text-slate-900 transition-colors z-20 font-medium bg-white/50 backdrop-blur-sm px-4 py-2 rounded-full border border-slate-200/50 shadow-sm hover:shadow-md">
+        <ArrowLeft size={18} />
+        <span className="hidden sm:inline">Back to Home</span>
+      </Link>
+
       <div className="absolute inset-0 bg-[linear-gradient(to_right,#e2e8f0_1px,transparent_1px),linear-gradient(to_bottom,#e2e8f0_1px,transparent_1px)] bg-[size:32px_32px] opacity-40 pointer-events-none"></div>
 
       <div className="w-full max-w-md relative z-10 bg-white border border-slate-200 rounded-2xl p-8 shadow-sm">
