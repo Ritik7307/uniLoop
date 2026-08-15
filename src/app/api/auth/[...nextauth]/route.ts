@@ -24,6 +24,10 @@ export const authOptions: NextAuthOptions = {
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
+        if (!user.email || !user.email.endsWith("@rgipt.ac.in")) {
+          return false; // Reject the sign in if it's not from the allowed domain
+        }
+        
         try {
           await dbConnect();
           const email = user.email || "";
