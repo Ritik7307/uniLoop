@@ -1,8 +1,7 @@
 import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
-import { MongoDBAdapter } from "@auth/mongodb-adapter";
-import clientPromise from "../../../../lib/mongodb-adapter";
-import type { Adapter } from "next-auth/adapters";
+import dbConnect from "@/lib/mongodb";
+import { User } from "@/models/User";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -19,24 +18,50 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise) as Adapter,
   session: {
     strategy: "jwt",
   },
   callbacks: {
     async signIn({ user, account, profile }) {
       if (account?.provider === "google") {
-        // TEMPORARILY DISABLED FOR TESTING
-        // if (user.email && !user.email.endsWith("@rgipt.ac.in")) {
-        //   return false; // Reject the sign in
-        // }
+        try {
+          await dbConnect();
+          const email = user.email || "";
+          const name = user.name || "Unknown User";
+          const image = user.image || "";
+          
+          const existingUser = await User.findOne({ email });
+          
+          if (!existingUser) {
+            await User.create({
+              name,
+              email,
+              image,
+              role: "user"
+            });
+          }
+          return true;
+        } catch (error) {
+          console.error("Error during sign in:", error);
+          return false;
+        }
       }
       return true;
     },
+    async jwt({ token, user }) {
+      if (user) {
+        await dbConnect();
+        const dbUser = await User.findOne({ email: user.email });
+        if (dbUser) {
+          token.id = dbUser._id.toString();
+        }
+      }
+      return token;
+    },
     async session({ session, token }) {
-      if (session.user) {
+      if (session.user && token.id) {
         // @ts-ignore
-        session.user.id = token.sub;
+        session.user.id = token.id as string;
       }
       return session;
     },
