@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from "next-auth";
 import GoogleProvider from "next-auth/providers/google";
 import { MongoDBAdapter } from "@auth/mongodb-adapter";
 import clientPromise from "../../../../lib/mongodb-adapter";
+import type { Adapter } from "next-auth/adapters";
 
 export const authOptions: NextAuthOptions = {
   providers: [
@@ -18,7 +19,7 @@ export const authOptions: NextAuthOptions = {
       allowDangerousEmailAccountLinking: true
     }),
   ],
-  adapter: MongoDBAdapter(clientPromise),
+  adapter: MongoDBAdapter(clientPromise) as Adapter,
   session: {
     strategy: "jwt",
   },
